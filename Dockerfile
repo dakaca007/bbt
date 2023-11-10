@@ -21,3 +21,4 @@ EXPOSE 20
 EXPOSE 21
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
+RUN ssh-keygen -A
