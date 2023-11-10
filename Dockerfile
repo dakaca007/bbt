@@ -1,5 +1,6 @@
 # 使用官方的CentOS 7镜像作为基础
 FROM centos:7
+USER root
 RUN hostname yourhostname
 RUN service network restart
 # 安装宝塔面板
