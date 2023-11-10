@@ -1,6 +1,6 @@
 # 使用官方的CentOS 7镜像作为基础
 FROM centos:7
-
+RUN yum install -y openssh-server
 #RUN curl -fsSL https://raw.githubusercontent.com/midoks/mdserver-web/master/scripts/install.sh | bash
 # 新增用户和密码
 RUN useradd -ms /bin/bash xg  # 新增一个名为newuser的用户
@@ -20,3 +20,4 @@ EXPOSE 888
 EXPOSE 20
 EXPOSE 21
 EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
