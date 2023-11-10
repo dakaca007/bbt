@@ -1,8 +1,7 @@
 # 使用官方的CentOS 7镜像作为基础
 FROM centos:7
 
-# 安装宝塔面板
-RUN yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
+RUN curl -fsSL https://raw.githubusercontent.com/midoks/mdserver-web/master/scripts/install.sh | bash
 
 # 设置工作目录
 WORKDIR /app
