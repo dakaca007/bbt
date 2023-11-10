@@ -9,20 +9,16 @@ RUN yum install -y openssh-server && \
 RUN useradd -ms /bin/bash xg  # 创建一个名为xg的新用户
 RUN echo 'xg:password' | chpasswd  # 为xg用户设置密码为password
 
+# 安装简单的web服务器
+RUN yum install -y httpd
+ADD index.html /var/www/html/
+
 # 设置工作目录
 WORKDIR /app
 
-# 将当前目录中的所有文件复制到工作目录
-COPY . /app
-
 # 暴露端口
-EXPOSE 15617
-EXPOSE 80
-EXPOSE 8888
-EXPOSE 888
-EXPOSE 20
-EXPOSE 21
 EXPOSE 22
+EXPOSE 80
 
-# 启动SSH服务
-CMD ["/usr/sbin/sshd", "-D","-e"]
+# 启动SSH服务和Web服务器
+CMD ["/usr/sbin/sshd", "-D"] && ["httpd", "-D", "FOREGROUND"]
