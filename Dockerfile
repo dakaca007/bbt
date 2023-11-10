@@ -11,10 +11,10 @@ RUN echo 'xg:password' | chpasswd  # 为xg用户设置密码为password
 
 # 安装简单的web服务器
 RUN yum install -y httpd
-ADD index.html /var/www/html/
+COPY . /var/www/
 
 # 设置工作目录
-WORKDIR /app
+WORKDIR /var/www
 
 # 暴露端口
 EXPOSE 22
