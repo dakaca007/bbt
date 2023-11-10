@@ -25,4 +25,4 @@ EXPOSE 21
 EXPOSE 22
 
 # 启动SSH服务
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/usr/sbin/sshd", "-D","-e"]
