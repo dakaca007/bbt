@@ -1,14 +1,1 @@
-version: '3'
-services:
-  web:
-    build: .
-    ports:
-      - "80:80"
-      - "8888:8888"
-      - "888:888"
-      - "20:20"
-      - "21:21"
-      - "22:22"
-    hostname: yourhostname
-    stdin_open: true
-    tty: true
+
