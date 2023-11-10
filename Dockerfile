@@ -2,7 +2,7 @@
 FROM centos:7
 
 # 安装宝塔面板
-yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
+RUN yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
 
 # 设置工作目录
 WORKDIR /app
