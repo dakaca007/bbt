@@ -1,24 +1,20 @@
-# 使用官方的CentOS 7镜像作为基础
-FROM centos:7
+ FROM centos:7
 
-# 安装SSH服务器和生成主机密钥
-RUN yum install -y openssh-server && \
-    ssh-keygen -A
+# 安装必要的软件包
+RUN yum -y update && \
+    yum -y install epel-release && \
+    yum -y install nginx php php-fpm php-mysqlnd mysql redis
 
-# 新增用户和密码
-RUN useradd -ms /bin/bash xg  # 创建一个名为xg的新用户
-RUN echo 'xg:password' | chpasswd  # 为xg用户设置密码为password
+# 配置Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY localhost.conf /etc/nginx/conf.d/default.conf
 
-# 安装简单的web服务器
-RUN yum install -y httpd
-COPY . /var/www/
+# 配置PHP-FPM
+COPY php-fpm.conf /etc/php-fpm.d/www.conf
+COPY php.ini /etc/php.ini
 
-# 设置工作目录
-WORKDIR /var/www
+# 启动服务
+CMD service nginx start && service php-fpm start && service mysqld start && service redis start
 
 # 暴露端口
-EXPOSE 22
-EXPOSE 80
-
-# 启动SSH服务和Web服务器
-CMD ["/usr/sbin/sshd", "-D"] && ["httpd", "-D", "FOREGROUND"]
+EXPOSE 80 3306 6379
