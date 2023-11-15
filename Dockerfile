@@ -12,7 +12,7 @@ COPY localhost.conf /etc/nginx/conf.d/default.conf
 # 配置PHP-FPM
 COPY php-fpm.conf /etc/php-fpm.d/www.conf
 COPY php.ini /etc/php.ini
-
+COPY . /www
 # 启动服务
 CMD ["nginx", "-g", "daemon off;"], ["php-fpm"], ["mysqld"], ["redis-server"]
 
