@@ -1,12 +1,9 @@
  FROM centos:7
 
-# 安装必要的软件包
-RUN yum -y update && \
-    yum -y install epel-release && \
-    yum -y install nginx php php-fpm php-mysqlnd mysql-server redis
+ 
 
 # 安装Python 3和pip
-RUN yum install -y epel-release && yum install -y python3 && yum install -y python3-pip
+RUN yum install -y epel-release && yum install -y python3 && yum install -y python3-pip && yum install -y php php-fpm php-mysqlnd
 
 # 安装gcc编译器
 RUN yum install -y gcc
@@ -17,9 +14,7 @@ RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple Werkzeug
 RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple wtforms
 # 设置工作目录
 WORKDIR /www
-# 配置Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY localhost.conf /etc/nginx/conf.d/localhost.conf
+ 
 
 # 配置PHP-FPM
 COPY php-fpm.conf /etc/php-fpm.d/www.conf
