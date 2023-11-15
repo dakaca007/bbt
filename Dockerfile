@@ -29,7 +29,7 @@ COPY . /www
 RUN groupadd -g 1000 www-data && \
     useradd -u 1000 -g www-data -m www-data
 # 启动服务
-CMD  ["php-fpm"], ["mysqld"], ["redis-server"],["nginx", "-g", "daemon off;"]
+CMD  ["php-fpm"], ["mysqld"],["nginx", "-g", "daemon off;"],["python3 app.py"]
 
 # 暴露端口
-EXPOSE 80 3306 6379 8080 9000
+EXPOSE 80
