@@ -23,8 +23,11 @@ COPY localhost.conf /etc/nginx/conf.d/localhost.conf
 # 配置PHP-FPM
 COPY php-fpm.conf /etc/php-fpm.d/www.conf
 COPY php.ini /etc/php.ini
-COPY . /www
 
+
+COPY . /www
+RUN groupadd -g 1000 www-data && \
+    useradd -u 1000 -g www-data -m www-data
 # 启动服务
 CMD  ["php-fpm"], ["mysqld"], ["redis-server"],["nginx", "-g", "daemon off;"]
 
