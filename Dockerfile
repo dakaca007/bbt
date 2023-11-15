@@ -14,7 +14,7 @@ COPY php-fpm.conf /etc/php-fpm.d/www.conf
 COPY php.ini /etc/php.ini
 
 # 启动服务
-CMD service nginx start && service php-fpm start && service mysqld start && service redis start
+CMD ["nginx", "-g", "daemon off;"], ["php-fpm"], ["mysqld"], ["redis-server"]
 
 # 暴露端口
 EXPOSE 80 3306 6379
