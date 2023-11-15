@@ -7,5 +7,5 @@ php -S localhost:80 &
 # 启动Flask应用程序
 python3 app.py & 
 mysqld &
-nginx -g daemon off
+nginx -g “daemon off”
 

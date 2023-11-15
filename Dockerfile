@@ -3,7 +3,8 @@
 # 安装必要的软件包
 RUN yum -y update && \
     yum -y install epel-release && \
-    yum -y install nginx php php-fpm php-mysqlnd mysql redis
+    yum -y install nginx php php-fpm php-mysqlnd mysql-server redis
+
 # 安装Python 3和pip
 RUN yum install -y epel-release && yum install -y python3 && yum install -y python3-pip
 
