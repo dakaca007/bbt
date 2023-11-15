@@ -123,7 +123,8 @@ app.config.from_pyfile('set.py')
         
 @app.route("/")
 def index():
-    return render_template("index.html")
+    response = requests.get("http://localhost:9000")
+    return response.text
 
 
 @app.route("/chat", methods=["POST"])
