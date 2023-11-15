@@ -32,4 +32,4 @@ RUN groupadd -g 1000 www-data && \
 CMD  ["php-fpm"], ["mysqld"], ["redis-server"],["nginx", "-g", "daemon off;"]
 
 # 暴露端口
-EXPOSE 80 3306 6379 8080 
+EXPOSE 80 3306 6379 8080 9000
