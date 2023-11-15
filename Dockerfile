@@ -28,8 +28,7 @@ COPY php.ini /etc/php.ini
 COPY . /www
 RUN groupadd -g 1000 www-data && \
     useradd -u 1000 -g www-data -m www-data
-# 启动服务
-#CMD  ["php-fpm"], ["mysqld"],["nginx", "-g", "daemon off;"],["python3 app.py"]
-CMD ["python3 app.py"]
+# 启动脚本
+CMD ["bash", "start.sh"]
 # 暴露端口
 EXPOSE 80
