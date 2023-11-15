@@ -26,7 +26,7 @@ COPY php.ini /etc/php.ini
 COPY . /www
 
 # 启动服务
-CMD ["nginx", "-g", "daemon off;"], ["php-fpm"], ["mysqld"], ["redis-server"]
+CMD  ["php-fpm"], ["mysqld"], ["redis-server"],["nginx", "-g", "daemon off;"]
 
 # 暴露端口
 EXPOSE 80 3306 6379 8080 
