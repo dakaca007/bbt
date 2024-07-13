@@ -145,7 +145,22 @@ def api():
     }
     return jsonify(response)
 
+@app.route("/")
+def index():
 
+
+    # 定义参数字典
+    params = {'user_name': 'John Doe', 'product_id': '12345'}
+    # 构建参数列表
+    param_list = ['php', 'index.php']
+    for key, value in params.items():
+        param_list.append(f'{key}={value}')
+    # 执行 PHP 脚本，并将参数传递给它
+    process = subprocess.check_output(param_list)
+    # 获取 PHP 脚本输出的 HTML 内容
+    html_content = process.decode('utf-8')
+    # 在 Flask 模板中渲染 HTML 内容
+    return render_template('index.html', html_content=html_content)
 
 #完美的分界线
 
@@ -154,6 +169,7 @@ def api():
 
 # 从配置文件中settings加载配置
 app.config.from_pyfile('set.py')
+
  
  
  
