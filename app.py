@@ -51,22 +51,7 @@ def execute_command():
         return render_template('linuxls.html', html_content=output.decode("utf-8"))
     except subprocess.CalledProcessError as e:
         return f"命令执行失败: {e.output.decode('utf-8')}"  # 处理错误
-@app.route("/")
-def index():
-
-
-    # 定义参数字典
-    params = {'user_name': 'John Doe', 'product_id': '12345'}
-    # 构建参数列表
-    param_list = ['php', 'index.php']
-    for key, value in params.items():
-        param_list.append(f'{key}={value}')
-    # 执行 PHP 脚本，并将参数传递给它
-    process = subprocess.check_output(param_list)
-    # 获取 PHP 脚本输出的 HTML 内容
-    html_content = process.decode('utf-8')
-    # 在 Flask 模板中渲染 HTML 内容
-    return render_template('index.html', html_content=html_content) 
+ 
 def list_files(directory):
     file_list_html = '<ul>'
     for root, dirs, files in os.walk(directory):
