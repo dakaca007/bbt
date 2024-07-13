@@ -4,8 +4,8 @@ FROM centos:7
 # 安装Python 3和pip
 RUN yum install -y epel-release && yum install -y python3 && yum install -y python3-pip
 
-# 安装gcc编译器
-RUN yum install -y gcc
+# 安装gcc编译器RUN yum install -y gcc
+
 # 安装PHP解释器
 RUN yum install -y php php-cli php-mysql
 # 设置工作目录
