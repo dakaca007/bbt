@@ -5,49 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频播放器</title>
     <style>
-        /* ...（原代码中的样式保持不变） */
         body {
-font-family: Arial, sans-serif;
-margin: 0;
-padding: 0;
-overflow: hidden; /* 防止出现滚动条 */
-height: 100vh;
-}
-.video-container {
-width: 100vw;
-height: 100vh;
-display: flex;
-align-items: center;
-justify-content: center;
-position: absolute; /* 使用绝对定位 */
-top: 0; /* 使视频容器从顶部开始 */
-left: 0;
-background: black;
-transition: opacity 0.5s ease; /* 添加淡出效果 */
-overflow: hidden; /* 防止内部内容滚动 */
-}
-video {
-width: 100%;
-height: 100%;
-object-fit: cover; /* 确保视频覆盖整个容器 */
-}
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        .video-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed; /* 使用 fixed 定位，保持在页面固定位置 */
+            top: 0;
+            left: 0;
+            background: black;
+            transition: opacity 0.5s ease; /* 添加淡出效果 */
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .video-controls button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .video-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div id="videoList">
-        <!-- 视频容器将动态加载 -->
-    </div>
+    <div id="videoList"></div>
 
     <script>
         let isLoading = false;
-        let videoContainer;
+        let currentVideoContainer; // 当前视频容器
         let videoElement;
 
         function loadVideos() {
             if (isLoading) return;
             isLoading = true;
 
-            fetch(`https://api.kuleu.com/api/xjj?type=json`)
+            fetch(`https://api.kuleu.com/api/xjj?type=json`, {
+                method: 'GET', // 指定请求方法
+                headers: {
+                    'Content-Type': 'application/json' // 指定请求头
+                }
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
@@ -56,35 +77,71 @@ object-fit: cover; /* 确保视频覆盖整个容器 */
                         newVideoContainer.classList.add('video-container');
 
                         videoElement = document.createElement('video');
-                        videoElement.controls = true;
+                        videoElement.controls = false; // 禁用浏览器默认的视频控制
                         videoElement.src = data.video;
-                        videoElement.autoplay = true;
                         videoElement.muted = true;
 
-                        newVideoContainer.appendChild(videoElement);
+                        // 创建播放/暂停按钮
+                        const playButton = document.createElement('button');
+                        playButton.textContent = '播放';
+                        playButton.addEventListener('click', () => {
+                            if (videoElement.paused) {
+                                videoElement.play();
+                                playButton.textContent = '暂停';
+                            } else {
+                                videoElement.pause();
+                                playButton.textContent = '播放';
+                            }
+                        });
 
+                        // 创建音量控制按钮
+                        const volumeButton = document.createElement('button');
+                        volumeButton.textContent = '静音';
+                        volumeButton.addEventListener('click', () => {
+                            if (videoElement.muted) {
+                                videoElement.muted = false;
+                                volumeButton.textContent = '静音';
+                            } else {
+                                videoElement.muted = true;
+                                volumeButton.textContent = '取消静音';
+                            }
+                        });
+
+                        // 创建视频信息容器
+                        const videoInfo = document.createElement('div');
+                        videoInfo.classList.add('video-info');
+                        // 添加视频信息
+                        videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
+
+                        // 创建视频控制容器
+                        const videoControls = document.createElement('div');
+                        videoControls.classList.add('video-controls');
+                        videoControls.appendChild(playButton);
+                        videoControls.appendChild(volumeButton);
+
+                        // 将元素添加到视频容器
+                        newVideoContainer.appendChild(videoElement);
+                        newVideoContainer.appendChild(videoControls);
+                        newVideoContainer.appendChild(videoInfo);
+
+                        // 将新的视频容器添加到页面
                         const videoList = document.getElementById('videoList');
                         videoList.insertBefore(newVideoContainer, videoList.firstChild);
 
-                        // 监听视频播放完毕事件
+                        // 监听视频播放结束事件
                         videoElement.addEventListener('ended', () => {
                             loadVideos();
                         });
 
                         // 监听滑动事件
-                        videoElement.addEventListener('touchstart', handleTouchStart);
-                        videoElement.addEventListener('touchmove', handleTouchMove);
-
                         // 移除旧的视频
-                        if (videoContainer) {
-                            videoContainer.style.opacity = 0;
+                        if (currentVideoContainer) {
+                            currentVideoContainer.style.opacity = 0;
                             setTimeout(() => {
-                                videoContainer.remove();
+                                currentVideoContainer.remove();
                             }, 500);
                         }
-
-                        // 更新当前视频容器
-                        videoContainer = newVideoContainer;
+                        currentVideoContainer = newVideoContainer;
 
                         // 设置加载完成状态
                         isLoading = false;
@@ -98,29 +155,6 @@ object-fit: cover; /* 确保视频覆盖整个容器 */
                     isLoading = false;
                 });
         }
-
-       function handleTouchStart(e) {
-    e.preventDefault(); // 阻止默认的触摸行为
-    if (videoElement.paused) {
-        videoElement.play();
-    } else {
-        videoElement.pause();
-    }
-}
-
-function handleTouchMove(e) {
-    e.preventDefault(); // 阻止默认的触摸行为
-    if (e.touches.length === 1) {
-        const touch = e.touches[0];
-        const touchStart = new Event('touchstart');
-        const touchEnd = new Event('touchend');
-        const touchMove = new Event('touchmove');
-
-        touchElement.dispatchEvent(touchStart);
-        touchElement.dispatchEvent(touchMove);
-        touchElement.dispatchEvent(touchEnd);
-    }
-}
 
         // 初始化加载
         loadVideos();
