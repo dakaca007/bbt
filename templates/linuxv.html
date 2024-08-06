@@ -6,6 +6,50 @@
     <title>视频播放器</title>
     <style>
         /* CSS 代码保持不变 */
+        body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 0;
+height: 100vh;
+}
+.video-container {
+width: 100vw;
+height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+position: fixed; /* 使用 fixed 定位，保持在页面固定位置 */
+top: 0;
+left: 0;
+background: black;
+transition: opacity 0.5s ease; /* 添加淡出效果 */
+overflow: hidden;
+}
+video {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.video-controls {
+position: absolute;
+bottom: 10px;
+left: 10px;
+display: flex;
+align-items: center;
+}
+.video-controls button {
+background: transparent;
+border: none;
+color: white;
+font-size: 16px;
+cursor: pointer;
+}
+.video-info {
+position: absolute;
+top: 10px;
+left: 10px;
+color: white;
+}
     </style>
 </head>
 <body>
