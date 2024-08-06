@@ -87,20 +87,15 @@
 
         // 初始化播放按钮
         function initPlayButton() {
-            if (videoElement.paused) {
-                playButton.textContent = '播放';
-            } else {
-                playButton.textContent = '暂停';
-            }
+            playButton.textContent = videoElement.paused ? '播放' : '暂停';
             playButton.removeEventListener('click', playButton.clickHandler);
             playButton.clickHandler = () => {
                 if (videoElement.paused) {
                     videoElement.play();
-                    playButton.textContent = '暂停';
                 } else {
                     videoElement.pause();
-                    playButton.textContent = '播放';
                 }
+                playButton.textContent = videoElement.paused ? '播放' : '暂停';
             };
             playButton.addEventListener('click', playButton.clickHandler);
         }
@@ -120,6 +115,9 @@
         function loadVideos(url = null) {
             if (isLoading) return;
             isLoading = true;
+
+            // 停止之前的视频播放
+            videoElement.pause();
 
             let apiUrl = `https://api.kuleu.com/api/xjj?type=json`;
             if (url) {
@@ -156,7 +154,7 @@
                         videoElement.addEventListener('touchmove', handleTouchMove);
                         videoElement.addEventListener('touchend', handleTouchEnd);
 
-                        // 添加到历史记录
+                        // 将新视频添加到历史记录
                         addToHistory(data.video);
 
                         isLoading = false;
@@ -201,7 +199,15 @@
 
         // 添加到历史记录
         function addToHistory(url) {
-            historyList.push(url);
+            // 检查历史记录中是否已存在该视频
+            let index = historyList.indexOf(url);
+            if (index === -1) {
+                historyList.push(url);
+            } else {
+                // 如果已存在，将其移到列表末尾
+                historyList.splice(index, 1);
+                historyList.push(url);
+            }
             // 可以设置最大历史记录数
             if (historyList.length > 10) {
                 historyList.shift(); // 删除最早的记录
