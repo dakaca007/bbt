@@ -52,12 +52,21 @@
     </style>
 </head>
 <body>
-    <div id="videoList"></div>
+    <div class="video-container">
+        <video id="mainVideo" controls></video>
+        <div class="video-controls">
+            <button id="playButton">播放</button>
+            <button id="volumeButton">取消静音</button>
+        </div>
+        <div class="video-info" id="videoInfo"></div>
+    </div>
 
     <script>
         let isLoading = false;
-        let currentVideoContainer; // 当前视频容器
-        let videoElement;
+        let videoElement = document.getElementById('mainVideo');
+        let playButton = document.getElementById('playButton');
+        let volumeButton = document.getElementById('volumeButton');
+        let videoInfo = document.getElementById('videoInfo');
 
         function loadVideos() {
             if (isLoading) return;
@@ -65,25 +74,23 @@
 
             fetch(`https://api.kuleu.com/api/xjj?type=json`, {
                 method: 'GET'  // 指定请求方法
-                 
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
-                        // 创建新的视频容器
-                        const newVideoContainer = document.createElement('div');
-                        newVideoContainer.classList.add('video-container');
-
-                        // 创建新的视频元素
-                        videoElement = document.createElement('video');
-                        videoElement.controls = false; // 禁用浏览器默认的视频控制
-                        videoElement.src = data.video; // 设置新的视频源
+                        videoElement.src = data.video;
                         videoElement.muted = true; // 默认静音
+                        videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
 
-                        // 创建播放/暂停按钮
-                        const playButton = document.createElement('button');
+                        // 监听视频播放结束事件
+                        videoElement.addEventListener('ended', () => {
+                            loadVideos(); // 加载下一个视频
+                        });
+
+                        // 初始化播放按钮
                         playButton.textContent = '播放';
-                        playButton.addEventListener('click', () => {
+                        playButton.removeEventListener('click', playButton.clickHandler); // 移除旧的事件监听
+                        playButton.clickHandler = () => {
                             if (videoElement.paused) {
                                 videoElement.play();
                                 playButton.textContent = '暂停';
@@ -91,52 +98,18 @@
                                 videoElement.pause();
                                 playButton.textContent = '播放';
                             }
-                        });
+                        };
+                        playButton.addEventListener('click', playButton.clickHandler);
 
-                        // 创建音量控制按钮
-                        const volumeButton = document.createElement('button');
+                        // 初始化音量按钮
                         volumeButton.textContent = '取消静音'; // 默认显示"取消静音"
-                        volumeButton.addEventListener('click', () => {
-                            videoElement.muted = !videoElement.muted; // 切换静音状态
+                        volumeButton.removeEventListener('click', volumeButton.clickHandler);
+                        volumeButton.clickHandler = () => {
+                            videoElement.muted = !videoElement.muted;
                             volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
-                        });
+                        };
+                        volumeButton.addEventListener('click', volumeButton.clickHandler);
 
-                        // 创建视频信息容器
-                        const videoInfo = document.createElement('div');
-                        videoInfo.classList.add('video-info');
-                        // 添加视频信息
-                        videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
-
-                        // 创建视频控制容器
-                        const videoControls = document.createElement('div');
-                        videoControls.classList.add('video-controls');
-                        videoControls.appendChild(playButton);
-                        videoControls.appendChild(volumeButton);
-
-                        // 将元素添加到视频容器
-                        newVideoContainer.appendChild(videoElement);
-                        newVideoContainer.appendChild(videoControls);
-                        newVideoContainer.appendChild(videoInfo);
-
-                        // 将新的视频容器添加到页面
-                        const videoList = document.getElementById('videoList');
-                        videoList.insertBefore(newVideoContainer, videoList.firstChild);
-
-                        // 监听视频播放结束事件
-                        videoElement.addEventListener('ended', () => {
-                            loadVideos(); // 加载下一个视频
-                        });
-
-                        // 移除旧的视频
-                        if (currentVideoContainer) {
-                            currentVideoContainer.style.opacity = 0;
-                            setTimeout(() => {
-                                currentVideoContainer.remove();
-                            }, 500);
-                        }
-                        currentVideoContainer = newVideoContainer;
-
-                        // 设置加载完成状态
                         isLoading = false;
                     } else {
                         console.error('无法加载视频');
