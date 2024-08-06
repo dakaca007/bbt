@@ -23,6 +23,7 @@
             left: 0;
             background: black;
             transition: opacity 0.5s ease; /* 添加淡出效果 */
+            overflow: hidden; /* 防止内部内容滚动 */
         }
         video {
             width: 100%;
@@ -39,6 +40,7 @@
     <script>
         let isLoading = false; // 防止多次加载
         let videoContainer; // 当前视频容器
+        let videoElement; // 当前视频元素
 
         function loadVideos() {
             if (isLoading) return;
@@ -52,7 +54,7 @@
                         const newVideoContainer = document.createElement('div');
                         newVideoContainer.classList.add('video-container');
 
-                        const videoElement = document.createElement('video');
+                        videoElement = document.createElement('video');
                         videoElement.controls = true;
                         videoElement.src = data.video;
                         videoElement.autoplay = true; // 自动播放
@@ -66,6 +68,13 @@
                         // 监听视频播放完毕事件
                         videoElement.addEventListener('ended', () => {
                             loadVideos(); // 自动加载新视频
+                        });
+
+                        // 监听滑动事件
+                        newVideoContainer.addEventListener('wheel', (event) => {
+                            if (event.deltaY < 0) { // 向上滚动
+                                loadVideos();
+                            }
                         });
 
                         // 移除旧的视频
@@ -94,13 +103,6 @@
 
         // 初始化加载
         loadVideos();
-
-        // 添加滚动事件监听
-        window.addEventListener('wheel', (event) => {
-            if (event.deltaY < 0) { // 向上滚动
-                loadVideos();
-            }
-        });
     </script>
 </body>
 </html>
