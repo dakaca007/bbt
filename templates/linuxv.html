@@ -5,31 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频播放器</title>
     <style>
+        /* ...（原代码中的样式保持不变） */
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* 防止出现滚动条 */
-            height: 100vh;
-        }
-        .video-container {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute; /* 使用绝对定位 */
-            top: 0; /* 使视频容器从顶部开始 */
-            left: 0;
-            background: black;
-            transition: opacity 0.5s ease; /* 添加淡出效果 */
-            overflow: hidden; /* 防止内部内容滚动 */
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* 确保视频覆盖整个容器 */
-        }
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 0;
+overflow: hidden; /* 防止出现滚动条 */
+height: 100vh;
+}
+.video-container {
+width: 100vw;
+height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+position: absolute; /* 使用绝对定位 */
+top: 0; /* 使视频容器从顶部开始 */
+left: 0;
+background: black;
+transition: opacity 0.5s ease; /* 添加淡出效果 */
+overflow: hidden; /* 防止内部内容滚动 */
+}
+video {
+width: 100%;
+height: 100%;
+object-fit: cover; /* 确保视频覆盖整个容器 */
+}
     </style>
 </head>
 <body>
@@ -38,9 +39,9 @@
     </div>
 
     <script>
-        let isLoading = false; // 防止多次加载
-        let videoContainer; // 当前视频容器
-        let videoElement; // 当前视频元素
+        let isLoading = false;
+        let videoContainer;
+        let videoElement;
 
         function loadVideos() {
             if (isLoading) return;
@@ -57,8 +58,8 @@
                         videoElement = document.createElement('video');
                         videoElement.controls = true;
                         videoElement.src = data.video;
-                        videoElement.autoplay = true; // 自动播放
-                        videoElement.muted = true; // 设置为静音，用户可以手动开启声音
+                        videoElement.autoplay = true;
+                        videoElement.muted = true;
 
                         newVideoContainer.appendChild(videoElement);
 
@@ -67,22 +68,19 @@
 
                         // 监听视频播放完毕事件
                         videoElement.addEventListener('ended', () => {
-                            loadVideos(); // 自动加载新视频
+                            loadVideos();
                         });
 
                         // 监听滑动事件
-                        newVideoContainer.addEventListener('wheel', (event) => {
-                            if (event.deltaY < 0) { // 向上滚动
-                                loadVideos();
-                            }
-                        });
+                        videoElement.addEventListener('touchstart', handleTouchStart);
+                        videoElement.addEventListener('touchmove', handleTouchMove);
 
                         // 移除旧的视频
                         if (videoContainer) {
-                            videoContainer.style.opacity = 0; // 先淡出
+                            videoContainer.style.opacity = 0;
                             setTimeout(() => {
-                                videoContainer.remove(); // 再删除
-                            }, 500); // 和淡出时间一致
+                                videoContainer.remove();
+                            }, 500);
                         }
 
                         // 更新当前视频容器
@@ -92,14 +90,37 @@
                         isLoading = false;
                     } else {
                         console.error('无法加载视频');
-                        isLoading = false; // 发生错误时重置加载状态
+                        isLoading = false;
                     }
                 })
                 .catch(error => {
                     console.error('获取视频失败:', error);
-                    isLoading = false; // 发生错误时重置加载状态
+                    isLoading = false;
                 });
         }
+
+       function handleTouchStart(e) {
+    e.preventDefault(); // 阻止默认的触摸行为
+    if (videoElement.paused) {
+        videoElement.play();
+    } else {
+        videoElement.pause();
+    }
+}
+
+function handleTouchMove(e) {
+    e.preventDefault(); // 阻止默认的触摸行为
+    if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const touchStart = new Event('touchstart');
+        const touchEnd = new Event('touchend');
+        const touchMove = new Event('touchmove');
+
+        touchElement.dispatchEvent(touchStart);
+        touchElement.dispatchEvent(touchMove);
+        touchElement.dispatchEvent(touchEnd);
+    }
+}
 
         // 初始化加载
         loadVideos();
