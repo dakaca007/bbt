@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden; /* 防止出现滚动条 */
+            height: 100vh;
         }
         .video-container {
             width: 100vw;
@@ -38,6 +39,7 @@
     <script>
         let currentPage = 1; // 当前页数
         let isLoading = false; // 防止多次加载
+        let videoContainer; // 当前视频容器
 
         function loadVideos() {
             if (isLoading) return;
@@ -48,26 +50,30 @@
                 .then(data => {
                     if (data.code === 200) {
                         // 创建新的视频容器
-                        const videoContainer = document.createElement('div');
-                        videoContainer.classList.add('video-container');
+                        const newVideoContainer = document.createElement('div');
+                        newVideoContainer.classList.add('video-container');
 
                         const videoElement = document.createElement('video');
                         videoElement.controls = true;
                         videoElement.src = data.video;
+                        videoElement.autoplay = true; // 自动播放
+                        videoElement.muted = true; // 自动播放通常需要静音
 
-                        videoContainer.appendChild(videoElement);
-                        document.getElementById('videoList').insertBefore(videoContainer, document.getElementById('videoList').firstChild);
+                        newVideoContainer.appendChild(videoElement);
 
-                        videoElement.play(); // 自动播放
+                        const videoList = document.getElementById('videoList');
+                        videoList.insertBefore(newVideoContainer, videoList.firstChild);
 
-                        // 淡出旧的视频并删除
-                        const oldVideo = document.querySelector('.video-container:nth-child(2)');
-                        if (oldVideo) {
-                            oldVideo.style.opacity = 0; // 先淡出
+                        // 移除旧的视频
+                        if (videoContainer) {
+                            videoContainer.style.opacity = 0; // 先淡出
                             setTimeout(() => {
-                                oldVideo.remove(); // 再删除
+                                videoContainer.remove(); // 再删除
                             }, 500); // 和淡出时间一致
                         }
+
+                        // 更新当前视频容器
+                        videoContainer = newVideoContainer;
 
                         // 设置加载完成状态
                         isLoading = false;
