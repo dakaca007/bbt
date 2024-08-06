@@ -61,7 +61,7 @@
         <div class="video-info" id="videoInfo"></div>
     </div>
 
-    <script>
+   <script>
         let isLoading = false;
         let videoElement = document.getElementById('mainVideo');
         let playButton = document.getElementById('playButton');
@@ -79,7 +79,7 @@
                 .then(data => {
                     if (data.code === 200) {
                         videoElement.src = data.video;
-                        videoElement.muted = true; // 默认静音
+                        videoElement.muted = false; // 默认静音
                         videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
 
                         // 监听视频播放结束事件
@@ -88,7 +88,7 @@
                         });
 
                         // 初始化播放按钮
-                        playButton.textContent = '播放';
+                        playButton.textContent = '暂停'; // 这里将按钮初始设置为暂停
                         playButton.removeEventListener('click', playButton.clickHandler); // 移除旧的事件监听
                         playButton.clickHandler = () => {
                             if (videoElement.paused) {
@@ -109,6 +109,9 @@
                             volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
                         };
                         volumeButton.addEventListener('click', volumeButton.clickHandler);
+
+                        // 自动播放视频
+                        videoElement.play();
 
                         isLoading = false;
                     } else {
