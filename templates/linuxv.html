@@ -34,13 +34,14 @@
 </head>
 <body>
     <div id="videoList">
-        <!-- 视频容器将动态加载 -->
+        <div class="video-container" id="videoContainer">
+            <video id="videoElement" controls autoplay muted></video>
+        </div>
     </div>
 
     <script>
         let isLoading = false; // 防止多次加载
-        let videoContainer; // 当前视频容器
-        let videoElement; // 当前视频元素
+        const videoElement = document.getElementById('videoElement'); // 视频元素
 
         function loadVideos() {
             if (isLoading) return;
@@ -50,43 +51,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
-                        // 创建新的视频容器
-                        const newVideoContainer = document.createElement('div');
-                        newVideoContainer.classList.add('video-container');
-
-                        videoElement = document.createElement('video');
-                        videoElement.controls = true;
-                        videoElement.src = data.video;
-                        videoElement.autoplay = true; // 自动播放
-                        videoElement.muted = false; // 启用声音
-
-                        newVideoContainer.appendChild(videoElement);
-
-                        const videoList = document.getElementById('videoList');
-                        videoList.insertBefore(newVideoContainer, videoList.firstChild);
+                        videoElement.src = data.video; // 更新视频源
+                        videoElement.play(); // 播放新视频
 
                         // 监听视频播放完毕事件
                         videoElement.addEventListener('ended', () => {
                             loadVideos(); // 自动加载新视频
                         });
-
-                        // 监听滑动事件
-                        newVideoContainer.addEventListener('wheel', (event) => {
-                            if (event.deltaY < 0) { // 向上滚动
-                                loadVideos();
-                            }
-                        });
-
-                        // 移除旧的视频
-                        if (videoContainer) {
-                            videoContainer.style.opacity = 0; // 先淡出
-                            setTimeout(() => {
-                                videoContainer.remove(); // 再删除
-                            }, 500); // 和淡出时间一致
-                        }
-
-                        // 更新当前视频容器
-                        videoContainer = newVideoContainer;
 
                         // 设置加载完成状态
                         isLoading = false;
@@ -100,6 +71,14 @@
                     isLoading = false; // 发生错误时重置加载状态
                 });
         }
+
+        // 监听滑动事件
+        const videoContainer = document.getElementById('videoContainer');
+        videoContainer.addEventListener('wheel', (event) => {
+            if (event.deltaY < 0) { // 向上滚动
+                loadVideos();
+            }
+        });
 
         // 初始化加载
         loadVideos();
