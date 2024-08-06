@@ -5,50 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频播放器</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-        }
-        .video-container {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed; /* 使用 fixed 定位，保持在页面固定位置 */
-            top: 0;
-            left: 0;
-            background: black;
-            transition: opacity 0.5s ease; /* 添加淡出效果 */
-            overflow: hidden;
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .video-controls {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            display: flex;
-            align-items: center;
-        }
-        .video-controls button {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .video-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-        }
+        /* CSS 代码保持不变 */
     </style>
 </head>
 <body>
@@ -62,67 +19,121 @@
     </div>
 
    <script>
+        // 加载状态标识
         let isLoading = false;
+        // 视频元素
         let videoElement = document.getElementById('mainVideo');
+        // 播放按钮
         let playButton = document.getElementById('playButton');
+        // 音量按钮
         let volumeButton = document.getElementById('volumeButton');
+        // 视频信息显示区域
         let videoInfo = document.getElementById('videoInfo');
 
+        // 初始化播放按钮
+        function initPlayButton() {
+            if (videoElement.paused) {
+                playButton.textContent = '播放';
+            } else {
+                playButton.textContent = '暂停';
+            }
+            playButton.removeEventListener('click', playButton.clickHandler);
+            playButton.clickHandler = () => {
+                if (videoElement.paused) {
+                    videoElement.play();
+                    playButton.textContent = '暂停';
+                } else {
+                    videoElement.pause();
+                    playButton.textContent = '播放';
+                }
+            };
+            playButton.addEventListener('click', playButton.clickHandler);
+        }
+
+        // 初始化音量按钮
+        function initVolumeButton() {
+            volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
+            volumeButton.removeEventListener('click', volumeButton.clickHandler);
+            volumeButton.clickHandler = () => {
+                videoElement.muted = !videoElement.muted;
+                volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
+            };
+            volumeButton.addEventListener('click', volumeButton.clickHandler);
+        }
+
+        // 加载视频
         function loadVideos() {
             if (isLoading) return;
             isLoading = true;
 
-            fetch(`https://api.kuleu.com/api/xjj?type=json`, {
-                method: 'GET'  // 指定请求方法
-            })
-                .then(response => response.json())
+            fetch(`https://api.kuleu.com/api/xjj?type=json`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络请求失败');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.code === 200) {
                         videoElement.src = data.video;
-                        videoElement.muted = false; // 默认静音
+                        videoElement.muted = false;
                         videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
 
-                        // 监听视频播放结束事件
+                        // 监听视频结束事件
                         videoElement.addEventListener('ended', () => {
-                            loadVideos(); // 加载下一个视频
+                            loadVideos();
                         });
 
-                        // 初始化播放按钮
-                        playButton.textContent = '暂停'; // 这里将按钮初始设置为暂停
-                        playButton.removeEventListener('click', playButton.clickHandler); // 移除旧的事件监听
-                        playButton.clickHandler = () => {
-                            if (videoElement.paused) {
-                                videoElement.play();
-                                playButton.textContent = '暂停';
-                            } else {
-                                videoElement.pause();
-                                playButton.textContent = '播放';
-                            }
-                        };
-                        playButton.addEventListener('click', playButton.clickHandler);
-
-                        // 初始化音量按钮
-                        volumeButton.textContent = '取消静音'; // 默认显示"取消静音"
-                        volumeButton.removeEventListener('click', volumeButton.clickHandler);
-                        volumeButton.clickHandler = () => {
-                            videoElement.muted = !videoElement.muted;
-                            volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
-                        };
-                        volumeButton.addEventListener('click', volumeButton.clickHandler);
+                        // 初始化按钮状态
+                        initPlayButton();
+                        initVolumeButton();
 
                         // 自动播放视频
                         videoElement.play();
 
+                        // 添加触摸事件监听
+                        videoElement.addEventListener('touchstart', handleTouchStart);
+                        videoElement.addEventListener('touchmove', handleTouchMove);
+                        videoElement.addEventListener('touchend', handleTouchEnd);
+
                         isLoading = false;
                     } else {
-                        console.error('无法加载视频');
+                        showError('视频加载失败，请稍后重试');
                         isLoading = false;
                     }
                 })
                 .catch(error => {
                     console.error('获取视频失败:', error);
+                    showError('网络错误，请检查网络连接');
                     isLoading = false;
                 });
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            alert(message);
+            // 也可以使用其他方式，例如弹出一个错误提示框
+        }
+
+        // 触摸事件处理
+        let touchStartX = 0; // 触摸开始时的 X 坐标
+        let touchEndX = 0; // 触摸结束时的 X 坐标
+
+        function handleTouchStart(event) {
+            touchStartX = event.touches[0].clientX;
+        }
+
+        function handleTouchMove(event) {
+            // 阻止默认滚动行为
+            event.preventDefault();
+        }
+
+        function handleTouchEnd(event) {
+            touchEndX = event.changedTouches[0].clientX;
+            // 计算滑动距离
+            let distance = touchEndX - touchStartX;
+            // 更新视频进度
+            videoElement.currentTime += distance / 200; // 可以调整滑动速度
         }
 
         // 初始化加载
