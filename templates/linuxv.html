@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频播放器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #videoContainer {
+            margin-top: 20px;
+        }
+        video {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+        #loadVideoButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>手机网页视频播放器</h1>
+    <button id="loadVideoButton">加载视频</button>
+    <div id="videoContainer">
+        <video id="videoPlayer" controls>
+            <source id="videoSource" type="video/mp4">
+            您的浏览器不支持视频播放。
+        </video>
+    </div>
+
+    <script>
+        document.getElementById('loadVideoButton').addEventListener('click', function() {
+            fetch('https://api.kuleu.com/api/xjj?type=json')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const videoPlayer = document.getElementById('videoPlayer');
+                        const videoSource = document.getElementById('videoSource');
+                        videoSource.src = data.video;
+                        videoPlayer.load();
+                        videoPlayer.play();
+                    } else {
+                        alert('无法加载视频');
+                    }
+                })
+                .catch(error => {
+                    console.error('获取视频失败:', error);
+                    alert('获取视频失败');
+                });
+        });
+    </script>
+</body>
+</html>
