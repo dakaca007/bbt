@@ -17,8 +17,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            position: absolute; /* 使用绝对定位 */
+            top: 0; /* 使视频容器从顶部开始 */
+            left: 0;
             background: black;
+            transition: opacity 0.5s ease; /* 添加淡出效果 */
         }
         video {
             width: 100%;
@@ -44,6 +47,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
+                        // 创建新的视频容器
                         const videoContainer = document.createElement('div');
                         videoContainer.classList.add('video-container');
 
@@ -52,9 +56,18 @@
                         videoElement.src = data.video;
 
                         videoContainer.appendChild(videoElement);
-                        document.getElementById('videoList').appendChild(videoContainer);
+                        document.getElementById('videoList').insertBefore(videoContainer, document.getElementById('videoList').firstChild);
 
                         videoElement.play(); // 自动播放
+
+                        // 淡出旧的视频并删除
+                        const oldVideo = document.querySelector('.video-container:nth-child(2)');
+                        if (oldVideo) {
+                            oldVideo.style.opacity = 0; // 先淡出
+                            setTimeout(() => {
+                                oldVideo.remove(); // 再删除
+                            }, 500); // 和淡出时间一致
+                        }
 
                         // 设置加载完成状态
                         isLoading = false;
@@ -64,20 +77,19 @@
                 })
                 .catch(error => {
                     console.error('获取视频失败:', error);
+                    isLoading = false; // 出错时重置加载状态
                 });
-        }
-
-        function handleScroll() {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-                loadVideos();
-            }
         }
 
         // 初始化加载
         loadVideos();
 
         // 添加滚动事件监听
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('wheel', (event) => {
+            if (event.deltaY < 0) { // 向上滚动
+                loadVideos();
+            }
+        });
     </script>
 </body>
 </html>
