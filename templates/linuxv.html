@@ -50,6 +50,22 @@ top: 10px;
 left: 10px;
 color: white;
 }
+.history-list {
+position: absolute;
+top: 100px;
+left: 10px;
+background: rgba(0, 0, 0, 0.7);
+color: white;
+padding: 10px;
+border-radius: 5px;
+display: none;
+}
+.history-list a {
+color: white;
+text-decoration: none;
+display: block;
+padding: 5px;
+}
     </style>
 </head>
 <body>
@@ -58,8 +74,10 @@ color: white;
         <div class="video-controls">
             <button id="playButton">播放</button>
             <button id="volumeButton">取消静音</button>
+            <button id="historyButton">历史播放</button>
         </div>
         <div class="video-info" id="videoInfo"></div>
+        <div class="history-list" id="historyList"></div>
     </div>
 
    <script>
@@ -73,6 +91,44 @@ color: white;
         let volumeButton = document.getElementById('volumeButton');
         // 视频信息显示区域
         let videoInfo = document.getElementById('videoInfo');
+        // 历史播放按钮
+        let historyButton = document.getElementById('historyButton');
+        // 历史播放列表
+        let historyList = document.getElementById('historyList');
+        // 历史播放列表数据
+        let historyVideos = [];
+
+        // 从本地存储加载历史播放列表
+        function loadHistory() {
+            let historyData = localStorage.getItem('historyVideos');
+            if (historyData) {
+                historyVideos = JSON.parse(historyData);
+            } else {
+                historyVideos = [];
+            }
+            updateHistoryList();
+        }
+
+        // 更新历史播放列表
+        function updateHistoryList() {
+            historyList.innerHTML = '';
+            if (historyVideos.length > 0) {
+                historyVideos.forEach(video => {
+                    let link = document.createElement('a');
+                    link.href = video.url;
+                    link.textContent = video.title;
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        loadVideo(video.url, video.title);
+                    });
+                    historyList.appendChild(link);
+                });
+            } else {
+                let message = document.createElement('p');
+                message.textContent = '暂无历史播放记录';
+                historyList.appendChild(message);
+            }
+        }
 
         // 初始化播放按钮
         function initPlayButton() {
@@ -119,28 +175,7 @@ color: white;
                 })
                 .then(data => {
                     if (data.code === 200) {
-                        videoElement.src = data.video;
-                        videoElement.muted = false;
-                        videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
-
-                        // 监听视频结束事件
-                        videoElement.addEventListener('ended', () => {
-                            loadVideos();
-                        });
-
-                        // 初始化按钮状态
-                        initPlayButton();
-                        initVolumeButton();
-
-                        // 自动播放视频
-                        videoElement.play();
-
-                        // 添加触摸事件监听
-                        videoElement.addEventListener('touchstart', handleTouchStart);
-                        videoElement.addEventListener('touchmove', handleTouchMove);
-                        videoElement.addEventListener('touchend', handleTouchEnd);
-
-                        isLoading = false;
+                        loadVideo(data.video, data.title);
                     } else {
                         showError('视频加载失败，请稍后重试');
                         isLoading = false;
@@ -151,6 +186,53 @@ color: white;
                     showError('网络错误，请检查网络连接');
                     isLoading = false;
                 });
+        }
+
+        // 加载指定视频
+        function loadVideo(videoUrl, videoTitle) {
+            videoElement.src = videoUrl;
+            videoElement.muted = false;
+            videoInfo.textContent = `标题：${videoTitle}`;
+
+            // 监听视频结束事件
+            videoElement.addEventListener('ended', () => {
+                loadVideos();
+            });
+
+            // 初始化按钮状态
+            initPlayButton();
+            initVolumeButton();
+
+            // 自动播放视频
+            videoElement.play();
+
+            // 添加触摸事件监听
+            videoElement.addEventListener('touchstart', handleTouchStart);
+            videoElement.addEventListener('touchmove', handleTouchMove);
+            videoElement.addEventListener('touchend', handleTouchEnd);
+
+            // 将视频信息添加到历史播放列表
+            addToHistory(videoUrl, videoTitle);
+
+            isLoading = false;
+        }
+
+        // 将视频信息添加到历史播放列表
+        function addToHistory(videoUrl, videoTitle) {
+            // 检查是否已存在于列表中
+            let existingIndex = historyVideos.findIndex(video => video.url === videoUrl);
+            if (existingIndex === -1) {
+                // 不存在，添加到列表头部
+                historyVideos.unshift({ url: videoUrl, title: videoTitle });
+                localStorage.setItem('historyVideos', JSON.stringify(historyVideos));
+                updateHistoryList();
+            } else {
+                // 存在，将该视频移动到列表头部
+                let video = historyVideos.splice(existingIndex, 1)[0];
+                historyVideos.unshift(video);
+                localStorage.setItem('historyVideos', JSON.stringify(historyVideos));
+                updateHistoryList();
+            }
         }
 
         // 显示错误信息
@@ -180,7 +262,13 @@ color: white;
             videoElement.currentTime += distance / 200; // 可以调整滑动速度
         }
 
+        // 历史播放按钮点击事件
+        historyButton.addEventListener('click', () => {
+            historyList.style.display = historyList.style.display === 'block' ? 'none' : 'block';
+        });
+
         // 初始化加载
+        loadHistory();
         loadVideos();
     </script>
 </body>
