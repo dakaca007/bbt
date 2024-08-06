@@ -64,10 +64,8 @@
             isLoading = true;
 
             fetch(`https://api.kuleu.com/api/xjj?type=json`, {
-                method: 'GET', // 指定请求方法
-                headers: {
-                    'Content-Type': 'application/json' // 指定请求头
-                }
+                method: 'GET'  // 指定请求方法
+                 
             })
                 .then(response => response.json())
                 .then(data => {
@@ -76,10 +74,11 @@
                         const newVideoContainer = document.createElement('div');
                         newVideoContainer.classList.add('video-container');
 
+                        // 创建新的视频元素
                         videoElement = document.createElement('video');
                         videoElement.controls = false; // 禁用浏览器默认的视频控制
-                        videoElement.src = data.video;
-                        videoElement.muted = true;
+                        videoElement.src = data.video; // 设置新的视频源
+                        videoElement.muted = true; // 默认静音
 
                         // 创建播放/暂停按钮
                         const playButton = document.createElement('button');
@@ -96,15 +95,10 @@
 
                         // 创建音量控制按钮
                         const volumeButton = document.createElement('button');
-                        volumeButton.textContent = '静音';
+                        volumeButton.textContent = '取消静音'; // 默认显示"取消静音"
                         volumeButton.addEventListener('click', () => {
-                            if (videoElement.muted) {
-                                videoElement.muted = false;
-                                volumeButton.textContent = '静音';
-                            } else {
-                                videoElement.muted = true;
-                                volumeButton.textContent = '取消静音';
-                            }
+                            videoElement.muted = !videoElement.muted; // 切换静音状态
+                            volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
                         });
 
                         // 创建视频信息容器
@@ -130,10 +124,9 @@
 
                         // 监听视频播放结束事件
                         videoElement.addEventListener('ended', () => {
-                            loadVideos();
+                            loadVideos(); // 加载下一个视频
                         });
 
-                        // 监听滑动事件
                         // 移除旧的视频
                         if (currentVideoContainer) {
                             currentVideoContainer.style.opacity = 0;
