@@ -116,7 +116,7 @@ padding: 5px;
                 historyVideos.forEach(video => {
                     let link = document.createElement('a');
                     link.href = video.url;
-                    link.textContent = video.title;
+                    link.textContent = video.title; // 将这行代码移到创建 a 元素之后
                     link.addEventListener('click', (event) => {
                         event.preventDefault();
                         loadVideo(video.url, video.title);
