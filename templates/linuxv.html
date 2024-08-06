@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频播放器</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
     <style>
         /* CSS 代码保持不变 */
         body {
@@ -50,11 +51,25 @@ top: 10px;
 left: 10px;
 color: white;
 }
+.swiper-container {
+width: 100%;
+height: 100%;
+}
+.swiper-slide {
+display: flex;
+align-items: center;
+justify-content: center;
+}
     </style>
 </head>
 <body>
     <div class="video-container">
-        <video id="mainVideo" controls></video>
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <!-- 这里会动态添加视频 -->
+            </div>
+            <div class="swiper-pagination"></div> 
+        </div>
         <div class="video-controls">
             <button id="playButton">播放</button>
             <button id="volumeButton">取消静音</button>
@@ -62,32 +77,36 @@ color: white;
         <div class="video-info" id="videoInfo"></div>
     </div>
 
-   <script>
+   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
         // 加载状态标识
         let isLoading = false;
-        // 视频元素
-        let videoElement = document.getElementById('mainVideo');
         // 播放按钮
         let playButton = document.getElementById('playButton');
         // 音量按钮
         let volumeButton = document.getElementById('volumeButton');
         // 视频信息显示区域
         let videoInfo = document.getElementById('videoInfo');
+        // Swiper 容器
+        let swiperContainer = document.querySelector('.swiper-container');
+        // Swiper 实例
+        let swiper = null;
 
         // 初始化播放按钮
         function initPlayButton() {
-            if (videoElement.paused) {
+            let currentVideo = swiper.slides[swiper.activeIndex].querySelector('video');
+            if (currentVideo.paused) {
                 playButton.textContent = '播放';
             } else {
                 playButton.textContent = '暂停';
             }
             playButton.removeEventListener('click', playButton.clickHandler);
             playButton.clickHandler = () => {
-                if (videoElement.paused) {
-                    videoElement.play();
+                if (currentVideo.paused) {
+                    currentVideo.play();
                     playButton.textContent = '暂停';
                 } else {
-                    videoElement.pause();
+                    currentVideo.pause();
                     playButton.textContent = '播放';
                 }
             };
@@ -96,11 +115,12 @@ color: white;
 
         // 初始化音量按钮
         function initVolumeButton() {
-            volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
+            let currentVideo = swiper.slides[swiper.activeIndex].querySelector('video');
+            volumeButton.textContent = currentVideo.muted ? '取消静音' : '静音';
             volumeButton.removeEventListener('click', volumeButton.clickHandler);
             volumeButton.clickHandler = () => {
-                videoElement.muted = !videoElement.muted;
-                volumeButton.textContent = videoElement.muted ? '取消静音' : '静音';
+                currentVideo.muted = !currentVideo.muted;
+                volumeButton.textContent = currentVideo.muted ? '取消静音' : '静音';
             };
             volumeButton.addEventListener('click', volumeButton.clickHandler);
         }
@@ -119,26 +139,48 @@ color: white;
                 })
                 .then(data => {
                     if (data.code === 200) {
-                        videoElement.src = data.video;
-                        videoElement.muted = false;
-                        videoInfo.textContent = `标题：${data.title} 作者：${data.author}`;
+                        let swiperWrapper = swiperContainer.querySelector('.swiper-wrapper');
+                        swiperWrapper.innerHTML = ''; // 清空之前的内容
 
-                        // 监听视频结束事件
-                        videoElement.addEventListener('ended', () => {
-                            loadVideos();
+                        // 创建新的视频 slide
+                        data.videos.forEach(videoData => {
+                            let videoSlide = document.createElement('div');
+                            videoSlide.classList.add('swiper-slide');
+                            let videoElement = document.createElement('video');
+                            videoElement.src = videoData.video;
+                            videoElement.controls = true;
+                            videoElement.muted = false;
+                            videoSlide.appendChild(videoElement);
+                            swiperWrapper.appendChild(videoSlide);
                         });
 
-                        // 初始化按钮状态
-                        initPlayButton();
-                        initVolumeButton();
-
-                        // 自动播放视频
-                        videoElement.play();
-
-                        // 添加触摸事件监听
-                        videoElement.addEventListener('touchstart', handleTouchStart);
-                        videoElement.addEventListener('touchmove', handleTouchMove);
-                        videoElement.addEventListener('touchend', handleTouchEnd);
+                        // 初始化 Swiper 实例
+                        if (swiper) {
+                            swiper.destroy(true, true); // 销毁之前的实例
+                        }
+                        swiper = new Swiper('.swiper-container', {
+                            slidesPerView: 1,
+                            spaceBetween: 10,
+                            speed: 500,
+                            loop: true,
+                            pagination: {
+                                el: '.swiper-pagination',
+                                clickable: true
+                            },
+                            on: {
+                                init: () => {
+                                    initPlayButton();
+                                    initVolumeButton();
+                                },
+                                slideChange: () => {
+                                    initPlayButton();
+                                    initVolumeButton();
+                                    // 更新视频信息
+                                    let currentVideo = swiper.slides[swiper.activeIndex].querySelector('video');
+                                    videoInfo.textContent = `标题：${currentVideo.dataset.title} 作者：${currentVideo.dataset.author}`;
+                                }
+                            }
+                        });
 
                         isLoading = false;
                     } else {
@@ -157,27 +199,6 @@ color: white;
         function showError(message) {
             alert(message);
             // 也可以使用其他方式，例如弹出一个错误提示框
-        }
-
-        // 触摸事件处理
-        let touchStartX = 0; // 触摸开始时的 X 坐标
-        let touchEndX = 0; // 触摸结束时的 X 坐标
-
-        function handleTouchStart(event) {
-            touchStartX = event.touches[0].clientX;
-        }
-
-        function handleTouchMove(event) {
-            // 阻止默认滚动行为
-            event.preventDefault();
-        }
-
-        function handleTouchEnd(event) {
-            touchEndX = event.changedTouches[0].clientX;
-            // 计算滑动距离
-            let distance = touchEndX - touchStartX;
-            // 更新视频进度
-            videoElement.currentTime += distance / 200; // 可以调整滑动速度
         }
 
         // 初始化加载
