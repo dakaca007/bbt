@@ -39,7 +39,9 @@ def indexphp():
 @app.route("/ls")
 def linxuls():
     return render_template('linuxls.html')  # 仅返回表单页面
-
+@app.route("/v")
+def linuxv():
+    return render_template('linuxv.html')  # 仅返回表单页面
 @app.route("/execute_command", methods=["POST"])
 def execute_command():
     command = request.form.get("command")  # 获取用户输入的命令
