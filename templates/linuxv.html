@@ -7,58 +7,77 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 防止出现滚动条 */
         }
-        #videoContainer {
-            margin-top: 20px;
+        .video-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: black;
         }
         video {
             width: 100%;
-            max-width: 600px;
-            height: auto;
-        }
-        #loadVideoButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
+            height: 100%;
+            object-fit: cover; /* 确保视频覆盖整个容器 */
         }
     </style>
 </head>
 <body>
-    <h1>手机网页视频播放器</h1>
-    <button id="loadVideoButton">加载视频</button>
-    <div id="videoContainer">
-        <video id="videoPlayer" controls>
-            <source id="videoSource" type="video/mp4">
-            您的浏览器不支持视频播放。
-        </video>
+    <div id="videoList">
+        <!-- 视频容器将动态加载 -->
     </div>
 
     <script>
-        document.getElementById('loadVideoButton').addEventListener('click', function() {
-            fetch('https://api.kuleu.com/api/xjj?type=json')
+        let currentPage = 1; // 当前页数
+        let isLoading = false; // 防止多次加载
+
+        function loadVideos() {
+            if (isLoading) return;
+            isLoading = true;
+
+            fetch(`https://api.kuleu.com/api/xjj?type=json`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
-                        const videoPlayer = document.getElementById('videoPlayer');
-                        const videoSource = document.getElementById('videoSource');
-                        videoSource.src = data.video;
-                        videoPlayer.load();
-                        videoPlayer.play();
+                        const videoContainer = document.createElement('div');
+                        videoContainer.classList.add('video-container');
+
+                        const videoElement = document.createElement('video');
+                        videoElement.controls = true;
+                        videoElement.src = data.video;
+
+                        videoContainer.appendChild(videoElement);
+                        document.getElementById('videoList').appendChild(videoContainer);
+
+                        videoElement.play(); // 自动播放
+
+                        // 设置加载完成状态
+                        isLoading = false;
                     } else {
-                        alert('无法加载视频');
+                        console.error('无法加载视频');
                     }
                 })
                 .catch(error => {
                     console.error('获取视频失败:', error);
-                    alert('获取视频失败');
                 });
-        });
+        }
+
+        function handleScroll() {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                loadVideos();
+            }
+        }
+
+        // 初始化加载
+        loadVideos();
+
+        // 添加滚动事件监听
+        window.addEventListener('scroll', handleScroll);
     </script>
 </body>
 </html>
