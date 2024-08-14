@@ -1,12 +1,5 @@
 # 使用官方的Ubuntu 20.04镜像作为基础
 FROM nginx:latest
-
-# 更新包列表和安装基本工具
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    && add-apt-repository ppa:ondrej/php \
-    && apt-get update
-
 # 安装Python 3和pip
 RUN apt-get install -y python3 python3-pip
 
