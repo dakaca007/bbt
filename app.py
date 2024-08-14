@@ -10,41 +10,14 @@ import json
 import os
 from werkzeug.utils import secure_filename
 import sys
-import cv2
-import face_recognition
-import threading
+ 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 # MySQL数据库配置
 app.config['MYSQL_HOST'] = 'mysql.sqlpub.com'
 app.config['MYSQL_USER'] = 'dakaca007'
 app.config['MYSQL_PASSWORD'] = 'Kgds63EecpSlAtYR'
 app.config['MYSQL_DB'] = 'dakaca'
-video_capture = None
-running = False
-def capture_video():
-    global video_capture, running
-    video_capture = cv2.VideoCapture(0)
-    running = True
-
-    while running:
-        ret, frame = video_capture.read()
-        if not ret:
-            break
-        
-        rgb_frame = frame[:, :, ::-1]
-        face_locations = face_recognition.face_locations(rgb_frame)
-
-        for top, right, bottom, left in face_locations:
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-
-        cv2.imshow('Video', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    video_capture.release()
-    cv2.destroyAllWindows()
-    running = False
-
+ 
 
 @app.route('/php', methods=['GET', 'POST'])
 def indexphp():
@@ -65,16 +38,7 @@ def indexphp():
         return render_template('indexphp.html', php_code=php_code, result=result)
     else:
         return render_template('indexphp.html')
-@app.route("/stop_ai")
-def stop_ai():
-    global running
-    running = False
-    return "AI stopped"
-@app.route("/start_ai")
-def start_ai():
-    thread = threading.Thread(target=capture_video)
-    thread.start()
-    return "AI started"
+ 
 @app.route("/ls")
 def linxuls():
     return render_template('linuxls.html')  # 仅返回表单页面
