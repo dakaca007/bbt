@@ -23,7 +23,7 @@ WORKDIR /app
 COPY . /app
 
 # 安装Python库
-RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple flask pymysql requests Werkzeug wtforms pexpect
+RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple flask pymysql requests Werkzeug wtforms pexpect opencv-python face_recognition
 
 # 暴露端口
 EXPOSE 80
