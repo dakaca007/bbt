@@ -1,3 +1,4 @@
+
 # 使用官方的Ubuntu 20.04镜像作为基础
 FROM ubuntu:20.04
 
@@ -16,6 +17,9 @@ RUN apt-get install -y gcc
 # 安装PHP解释器
 RUN apt-get install -y php7.4 php7.4-cli php7.4-mysql
 
+# 安装Nginx
+RUN apt-get install -y nginx
+
 # 设置工作目录
 WORKDIR /app
 
@@ -25,8 +29,14 @@ COPY . /app
 # 安装Python库
 RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple flask pymysql requests Werkzeug wtforms pexpect
 
+# 复制Nginx配置文件到适当的位置
+COPY nginx.conf /etc/nginx/sites-available/default
+
 # 暴露端口
 EXPOSE 80
 
 # 启动脚本
 CMD ["bash", "start.sh"]
+
+# 启动Nginx
+CMD ["nginx", "-g", "daemon off;"]
