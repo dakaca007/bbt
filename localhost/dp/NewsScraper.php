@@ -16,8 +16,10 @@ class NewsScraper {
         return $this->parse($response);
     }
 
-    private function parse($html = new DOMDocument();
-        @$dom->loadHTML($html);
+    private function parse($html) {
+        $news = []; // 初始化新闻数组
+        $dom = new DOMDocument();
+        @$dom->loadHTML($html); // 加载 HTML
         $xpath = new DOMXPath($dom);
 
         // BBC 新闻的热点新闻通常在 <h3> 标签中
