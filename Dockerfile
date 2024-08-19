@@ -1,15 +1,17 @@
 # 使用官方的 PHP + Apache 镜像
 FROM php:7.4-apache
 
-# 安装 GD 扩展
+# 安装 GD 扩展及其他依赖
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd && \
-    pdo pdo_mysql && \
-    a2enmod rewrite
+    && docker-php-ext-install gd \
+    && docker-php-ext-install pdo pdo_mysql \
+    && a2enmod rewrite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # 设置 Apache 配置以允许 .htaccess 文件
 RUN echo '<Directory /var/www/html>' > /etc/apache2/sites-available/000-default.conf && \
