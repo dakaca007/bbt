@@ -7,5 +7,5 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./public:/var/www/html
+      - ./localhost/dp:/var/www/html
       - ./localhost:/usr/local/bin
