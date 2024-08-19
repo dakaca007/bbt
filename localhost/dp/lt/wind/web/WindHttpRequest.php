@@ -84,13 +84,22 @@ class WindHttpRequest implements IWindRequest {
 	 * 对输入参数做转义处理
 	 */
 	protected function normalizeRequest() {
-		if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
-			if (isset($_GET)) $_GET = $this->_stripSlashes($_GET);
-			if (isset($_POST)) $_POST = $this->_stripSlashes($_POST);
-			if (isset($_REQUEST)) $_REQUEST = $this->_stripSlashes($_REQUEST);
-			if (isset($_COOKIE)) $_COOKIE = $this->_stripSlashes($_COOKIE);
-		}
-	}
+    // 直接处理输入数据，不再检查 get_magic_quotes_gpc()
+    if (isset($_GET)) {
+        $_GET = $this->_stripSlashes($_GET);
+    }
+    if (isset($_POST)) {
+        $_POST = $this->_stripSlashes($_POST);
+    }
+    if (isset($_REQUEST)) {
+        $_REQUEST = $this->_stripSlashes($_REQUEST);
+    }
+    if (isset($_COOKIE)) {
+        $_COOKIE = $this->_stripSlashes($_COOKIE);
+    }
+}
+
+
 	
 	/* (non-PHPdoc)
 	 * @see IWindRequest::setAttribute()
