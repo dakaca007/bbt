@@ -11,5 +11,4 @@ RUN apt-get update && apt-get install -y \
 COPY localhost/dp/ /var/www/html/
 COPY localhost/ /usr/local/bin/
 
-# 确保 Python 脚本可执行
-RUN chmod +x /usr/local/bin/helper.py
+
