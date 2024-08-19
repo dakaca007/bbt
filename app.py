@@ -18,48 +18,6 @@ app.config['MYSQL_USER'] = 'dakaca007'
 app.config['MYSQL_PASSWORD'] = 'Kgds63EecpSlAtYR'
 app.config['MYSQL_DB'] = 'dakaca'
  
-
-# 设置您的OpenAI API密钥
-API_KEY = 'sk-v0BzWI6VT5breOqW7wkhm2JAX8G0cefvBPwj1uYrPM1dWWcU'
-API_URL = 'https://api.chatanywhere.tech'
-# 定义与GPT-3.5对话的函数
-def chat_with_gpt3(messages):
-    headers = {
-        'Authorization': f'Bearer {API_KEY}',
-        'Content-Type': 'application/json'
-    }
-    
-    data = {
-        'model': 'gpt-3.5-turbo',
-        'messages': messages,
-        'max_tokens': 150,
-        'temperature': 0.7
-    }
-    
-    response = requests.post(API_URL, headers=headers, json=data)
-    
-    if response.status_code == 200:
-        return response.json()['choices'][0]['message']['content']
-    else:
-        return f"Error: {response.status_code}, {response.text}"
-@app.route('/ai')
-def indexai():
-    return render_template('indexai.html')
-@app.route('/chat', methods=['POST'])
-def chat():
-    user_message = request.json['message']
-    messages = request.json['messages']
-    
-    # 将用户消息添加到历史记录
-    messages.append({"role": "user", "content": user_message})
-    
-    # 调用GPT-3.5获取响应
-    gpt_response = chat_with_gpt3(messages)
-    
-    # 将GPT的响应添加到历史记录
-    messages.append({"role": "assistant", "content": gpt_response})
-    
-    return jsonify({'response': gpt_response, 'messages': messages})
 @app.route('/php', methods=['GET', 'POST'])
 def indexphp():
     if request.method == 'POST':
