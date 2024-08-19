@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd
 # 将当前目录中的所有文件复制到工作目录
 COPY localhost/dp/ /var/www/html/
+
 # 更改目录权限
 RUN chmod -R 777 /var/www/html/e/
+# 更改目录权限
+RUN chmod -R 777 /var/www/html/lt/
 
 
