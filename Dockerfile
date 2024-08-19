@@ -1,5 +1,5 @@
 # 使用官方的 PHP + Apache 镜像
-FROM php:7.4-apache
+FROM php:5.4-apache
 
 # 安装 GD 扩展
 RUN apt-get update && apt-get install -y \
