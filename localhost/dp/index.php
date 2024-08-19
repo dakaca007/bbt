@@ -6,7 +6,7 @@ $db = new Database();
 $conn = $db->connect();
 
 // 爬取新闻
-$scraper = new NewsScraper('https://www.bbc.com/news');
+$scraper = new NewsScraper('https://www.cnn.com/world');
 $newsItems = $scraper->scrape();
 
 // 存储新闻到数据库
