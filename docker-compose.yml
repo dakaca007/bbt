@@ -8,4 +8,4 @@ services:
       - "80:80"
     volumes:
       - ./public:/var/www/html
-      - ./scripts:/usr/local/bin
+      - ./localhost:/usr/local/bin
