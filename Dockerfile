@@ -7,7 +7,12 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libpng-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+    && docker-php-ext-install gd && \
+    a2enmod rewrite
+# 设置 Apache 配置以允许 .htaccess 文件
+RUN echo '<Directory /var/www/html>' > /etc/apache2/sites-available/000-default.conf && \
+    echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '</Directory>' >> /etc/apache-available/000-default.conf
 # 将当前目录中的所有文件复制到工作目录
 COPY localhost/dp/ /var/www/html/
 
