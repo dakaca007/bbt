@@ -20,7 +20,8 @@ RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple flask pymysql reque
 
 # 设置工作目录
 WORKDIR /app
-
+# 将当前目录中的所有文件复制到工作目录
+COPY . /app
 # 将当前目录
 EXPOSE 80
 
