@@ -1,4 +1,3 @@
-
 version: '3.8'
 
 services:
@@ -8,4 +7,3 @@ services:
       - "80:80"
     volumes:
       - ./localhost/dp:/var/www/html
-      - ./localhost:/usr/local/bin
