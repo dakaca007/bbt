@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd && \
+    pdo pdo_mysql && \
     a2enmod rewrite
 
 # 设置 Apache 配置以允许 .htaccess 文件
