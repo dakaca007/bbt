@@ -19,7 +19,9 @@ app.config['MYSQL_PASSWORD'] = 'Kgds63EecpSlAtYR'
 app.config['MYSQL_DB'] = 'dakaca'
  
 
-
+# 设置您的OpenAI API密钥
+API_KEY = 'sk-v0BzWI6VT5breOqW7wkhm2JAX8G0cefvBPwj1uYrPM1dWWcU'
+API_URL = 'https://api.chatanywhere.tech'
 # 定义与GPT-3.5对话的函数
 def chat_with_gpt3(messages):
     headers = {
