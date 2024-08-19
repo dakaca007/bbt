@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y \
     a2enmod rewrite
 # 设置 Apache 配置以允许 .htaccess 文件
 RUN echo '<Directory /var/www/html>' > /etc/apache2/sites-available/000-default.conf && \
-    echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '</Directory>' >> /etc/apache-available/000-default.conf
+    echo '    AllowOverride All' >>-available/000-default.conf && \
+    echo '</Directory>' >> /etc/apache2/sites-available/000-default.conf
 # 将当前目录中的所有文件复制到工作目录
 COPY localhost/dp/ /var/www/html/
 
