@@ -22,12 +22,15 @@ class NewsScraper {
         @$dom->loadHTML($html); // 加载 HTML
         $xpath = new DOMXPath($dom);
 
-        // BBC 新闻的热点新闻通常在 <h3> 标签中
+        // CNN 新闻的热点新闻通常在 <h3> 标签中
         $items = $xpath->query('//h3/a'); // 选择 <h3> 标签下的 <a> 标签
 
         foreach ($items as $item) {
             $title = trim($item->nodeValue);
-            $link = 'https://www.bbc.com' . $item->getAttribute('href'); // 完整链接
+            $link = $item->getAttribute('href');
+            if (!preg_match('/^http/', $link)) {
+                $link = 'https://www.cnn.com' . $link; // 完整链接
+            }
             $news[] = ['title' => $title, 'link' => $link];
         }
 
