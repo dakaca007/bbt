@@ -22,7 +22,7 @@ app.config['MYSQL_DB'] = 'dakaca'
 def indexphp():
     if request.method == 'POST':
         php_code = request.form.get('php_code')
-        # 创建临时文件存储 PHP 代码
+        # 创建临时文件存储
         with open('temp.php', 'w', encoding='utf-8') as f:
             f.write(php_code)
 
