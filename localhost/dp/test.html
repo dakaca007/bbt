@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT 流式对话</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-width: 600px;
+            margin: auto;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 5px 0;
+        }
+        .request {
+            background-color: #e1f5fe;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .response {
+            background-color: #f1f8e9;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .cursorCls {
+            display: inline-block;
+            border-right: 2px solid black;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat-container"></div>
+<input type="text" id="inputArea" placeholder="输入消息...">
+<button id="sendButton">发送</button>
+
+<script>
+    // JavaScript 代码放在这里
+    const API_URL = "v1/chat/completions";
+    let controller;
+    let progressData = "";
+    let currentResEle;
+    let refreshIdx;
+    let loading = false;
+    let modelVersion = "gpt-3.5-turbo"; // 示例模型版本
+    let data = [];
+
+    const createConvEle = (type, isResponse = false, modelVersion = "") => {
+        const messageEle = document.createElement("div");
+        messageEle.classList.add("message", type);
+        const contentEle = document.createElement("div");
+        contentEle.innerHTML = isResponse ? "<p class='cursorCls'></p>" : "";
+        messageEle.appendChild(contentEle);
+        document.getElementById("chat-container").appendChild(messageEle);
+        return messageEle;
+    };
+
+    const streamGen = async () => {
+        currentResEle = createConvEle("response", true, modelVersion);
+        currentResEle.children[0].innerHTML = "<p class='cursorCls'><br /></p>";
+        currentResEle.dataset.loading = true;
+
+        try {
+            let headers = { "Content-Type": "application/json" };
+            let url = "YOUR_API_HOST_HERE" + ((apiHost.length && !apiHost.endsWith("/")) ? "/" : "") + API_URL;
+
+            const body = JSON.stringify({
+                messages: data,
+                model: modelVersion,
+                stream: true
+            });
+
+            const res = await fetch(url, {
+                method: "POST",
+                headers,
+                body,
+                signal: controller.signal
+            });
+
+            if (res.status !== 200) {
+                console.error("请求错误:", res.status);
+                return;
+            }
+
+            const decoder = new TextDecoder();
+            const reader = res.body.getReader();
+
+            const readChunk = async () => {
+                return reader.read().then(async ({ value, done }) => {
+                    if (!done) {
+                        value = decoder.decode(value);
+                        let chunks = value.match(/[^\n]+/g);
+                        if (!chunks) return readChunk();
+
+                        for (let chunk of chunks) {
+                            if (chunk) {
+                                let payload = JSON.parse(chunk.slice(5));
+                                if (payload.choices[0].finish_reason) {
+                                    data.push({ role: "assistant", content: progressData });
+                                    stopLoading(false);
+                                    break;
+                                } else if (payload.choices[0].delta.content) {
+                                    progressData += payload.choices[0].delta.content;
+                                    currentResEle.children[0].innerHTML = progressData; // 更新内容
+                                    scrollToBottom();
+                                }
+                            }
+                        }
+                        return readChunk();
+                    } else {
+                        data.push({ role: "assistant", content: progressData });
+                        stopLoading(false);
+                    }
+                });
+            };
+            await readChunk();
+
+        } catch (error) {
+            console.error("流处理错误:", error);
+        }
+    };
+
+    const generateText = (message) => {
+        loading = true;
+        let requestEle = createConvEle("request");
+        data.push({ role: "user", content: message });
+
+        requestEle.children[0].textContent = message;
+        streamGen();
+    };
+
+    const sendBtnEle = document.getElementById("sendButton");
+    const inputAreaEle = document.getElementById("inputArea");
+    sendBtnEle.onclick = () => {
+        let message = inputAreaEle.value.trim();
+        if (message.length !== 0) {
+            inputAreaEle.value = "";
+            generateText(message);
+        }
+    };
+
+    const scrollToBottom = () => {
+        const container = document.getElementById("chat-container");
+        container.scrollTop = container.scrollHeight;
+    };
+
+    const stopLoading = (reset = true) => {
+        loading = false;
+        if (reset) {
+            currentResEle.dataset.loading = false;
+        }
+    };
+</script>
+
+</body>
+</html>
