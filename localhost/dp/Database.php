@@ -1,3 +1,4 @@
+<?php
 class Database {
     private $host = 'mysql.sqlpub.com';
     private $db_name = 'dakaca';
@@ -69,3 +70,4 @@ class Database {
         return $stmt->execute();
     }
 }
+?>
