@@ -7,7 +7,24 @@ $db = new Database();
 
 // 连接到数据库
 $conn = $db->connect();
+// 表名
+$tableName = 'users';
 
+// 删除表
+$dropSql = "DROP TABLE IF EXISTS $tableName";
+$conn->exec($dropSql);
+echo "原有表 $tableName 已删除。\n";
+
+// 创建新表
+$createSql = "
+CREATE TABLE $tableName (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL
+)";
+$conn->exec($createSql);
+echo "新表 $tableName 已创建。\n";
 // 插入数据示例
 $userData = [
     'username' => 'john_doe',
