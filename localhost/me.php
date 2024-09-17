@@ -50,11 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Storage</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <style>
+        .CodeMirror {
+            height: auto;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
     <h1>Code Storage</h1>
     <form method="POST">
-        <textarea name="code" rows="4" cols="50" placeholder="Enter your PHP code here..."><?php echo htmlspecialchars($new_code); ?></textarea>
+        <textarea id="code" name="code"><?php echo htmlspecialchars($new_code); ?></textarea>
         <br>
         <input type="hidden" name="id" value="<?php echo htmlspecialchars($code_id); ?>">
         <button type="submit" name="action" value="insert">Insert Code</button>
@@ -75,12 +82,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<ul>";
         foreach ($codes as $code) {
             echo "<li>ID: " . htmlspecialchars($code['id']) . ", Description: " . htmlspecialchars($code['description']) . "<br>" .
-                 "<button onclick=\"document.querySelector('[name=code]').value = '" . htmlspecialchars($code['code']) . "'; document.querySelector('[name=id]').value = '" . htmlspecialchars($code['id']) . "';\">Edit</button></li>";
+                 "<button onclick=\"document.querySelector('#code').value = '" . htmlspecialchars($code['code']) . "'; document.querySelector('[name=id]').value = '" . htmlspecialchars($code['id']) . "';\">Edit</button></li>";
         }
         echo "</ul>";
     } else {
         echo "No codes found in the database.";
     }
     ?>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+            lineNumbers: true,
+            mode: "text/x-php", // 设置代码高亮为 PHP
+            theme: "default",
+        });
+    </script>
 </body>
 </html>
