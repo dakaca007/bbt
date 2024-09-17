@@ -15,8 +15,7 @@ if (!empty($codes)) {
         // 提取代码
         $codeToExecute = $code['code'];
 
-        // 调试输出，检查代码内容
-        echo "Code to execute: " . $codeToExecute . "\n";
+         
 
         try {
             // 将代码和 PHP 标签结合
