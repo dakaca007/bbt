@@ -22,5 +22,4 @@ COPY localhost/ /var/www/html/
 
 # 更改目录权限
 RUN chmod -R 777 /var/www/html/e/
-# 更改目录权限
-RUN chmod -R 777 /var/www/html/lt/
+
