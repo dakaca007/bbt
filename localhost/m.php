@@ -1,31 +1,48 @@
 <?php
-include_once 'Database.php';
+// 引入 Database 类
+require_once 'Database.php';
 
+// 实例化 Database 类
 $db = new Database();
+
+// 连接到数据库
 $conn = $db->connect();
 
-$conditions = []; // 根据需要添加条件
-$codes = $db->select('p_code_storage', $conditions);
+// 插入数据示例
+$userData = [
+    'username' => 'john_doe',
+    'email' => 'john@example.com',
+    'password' => 'secret123'
+];
 
-if (!empty($codes)) {
-    echo "Executing codes from the database:\n";
-    foreach ($codes as $code) {
-        echo "Executing code ID: " . $code['id'] . "\n";
-
-        // 提取代码
-        $codeToExecute = $code['code'];
-
-        // 调试输出，检查代码内容
-        echo "Code to execute: " . $codeToExecute . "\n";
-
-        try {
-            // 将代码和 PHP 标签结合
-            eval('?>' . $codeToExecute);
-        } catch (Throwable $e) {
-            echo "Error executing code: " . $e->getMessage() . "\n";
-        }
-    }
+$insertId = $db->insert('users', $userData);
+if ($insertId) {
+    echo "新用户插入成功，用户 ID: " . $insertId;
 } else {
-    echo "No codes found in the database.\n";
+    echo "插入用户失败";
 }
+
+// 查询数据示例
+$users = $db->select('users');
+print_r($users);
+
+// 更新数据示例
+$updateData = [
+    'email' => 'john.doe@example.com'
+];
+$updateConditions = ['id = ' . $insertId]; // 假设有一个 id 字段
+if ($db->update('users', $updateData, $updateConditions)) {
+    echo "用户信息更新成功";
+} else {
+    echo "更新失败";
+}
+
+// 删除数据示例
+$deleteConditions = ['id = ' . $insertId]; // 假设有一个 id 字段
+if ($db->delete('users', $deleteConditions)) {
+    echo "用户删除成功";
+} else {
+    echo "删除失败";
+}
+
 ?>
