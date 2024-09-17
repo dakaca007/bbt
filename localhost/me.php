@@ -61,9 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <h1>Code Storage</h1>
     <form method="POST">
-        <textarea id="code" name="code"><?php echo htmlspecialchars($new_code); ?></textarea>
+        <textarea id="code" name="code" style="display: none;"><?php echo htmlspecialchars($new_code); ?></textarea>
+        <div id="code-editor"></div>
         <br>
-        <input type="hidden" name="id" value="<?php echo htmlspecialchars($code_id); ?>">
+        <input type="hidden" name="id" id="code-id" value="<?php echo htmlspecialchars($code_id); ?>">
         <button type="submit" name="action" value="insert">Insert Code</button>
         <button type="submit" name="action" value="update" onclick="if(!confirm('Are you sure you want to update?')) return false;">Update Code</button>
         <button type="submit" name="action" value="delete" onclick="if(!confirm('Are you sure you want to delete?')) return false;">Delete Code</button>
@@ -82,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<ul>";
         foreach ($codes as $code) {
             echo "<li>ID: " . htmlspecialchars($code['id']) . ", Description: " . htmlspecialchars($code['description']) . "<br>" .
-                 "<button onclick=\"document.querySelector('#code').value = '" . htmlspecialchars($code['code']) . "'; document.querySelector('[name=id]').value = '" . htmlspecialchars($code['id']) . "';\">Edit</button></li>";
+                 "<button onclick=\"editCode('" . addslashes(htmlspecialchars($code['code'])) . "', '" . htmlspecialchars($code['id']) . "'); return false;\">Edit</button></li>";
         }
         echo "</ul>";
     } else {
@@ -93,11 +94,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
     <script>
-        var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+        // 初始化 CodeMirror 编辑器
+        var editor = CodeMirror(document.getElementById("code-editor"), {
+            value: document.getElementById("code").value,
             lineNumbers: true,
-            mode: "text/x-php", // 设置代码高亮为 PHP
+            mode: "text/x-php",
             theme: "default",
         });
+
+        function editCode(code, id) {
+            // 设置 CodeMirror 编辑器的内容
+            editor.setValue(code);
+            // 设置隐藏的 ID
+            document.getElementById('code-id').value = id;
+        }
+
+        // 在表单提交时将 CodeMirror 的内容存入 textarea
+        document.querySelector('form').onsubmit = function() {
+            document.querySelector('[name=code]').value = editor.getValue();
+        };
     </script>
 </body>
 </html>
