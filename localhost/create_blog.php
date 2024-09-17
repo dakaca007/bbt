@@ -1,4 +1,5 @@
 <?php
+include_once 'Database.php';
 // 实例化 Database 类
 $db = new Database();
 $conn = $db->connect();
