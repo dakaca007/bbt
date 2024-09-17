@@ -6,7 +6,7 @@ $conn = $db->connect();
 // 创建所需的表
 
 $tables = [
-    "CREATE TABLE IF NOT EXISTS users (
+    "CREATE TABLE IF NOT EXISTS news_users (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(30) NOT NULL UNIQUE,
         email VARCHAR(50) NOT NULL UNIQUE,
@@ -14,13 +14,13 @@ $tables = [
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
 
-    "CREATE TABLE IF NOT EXISTS categories (
+    "CREATE TABLE IF NOT EXISTS news_categories (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(50) NOT NULL UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
 
-    "CREATE TABLE IF NOT EXISTS articles (
+    "CREATE TABLE IF NOT EXISTS news_articles (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         user_id INT(6) UNSIGNED,
         category_id INT(6) UNSIGNED,
@@ -31,7 +31,7 @@ $tables = [
         FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
     )",
 
-    "CREATE TABLE IF NOT EXISTS comments (
+    "CREATE TABLE IF NOT EXISTS news_comments (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         article_id INT(6) UNSIGNED,
         user_id INT(6) UNSIGNED,
@@ -41,12 +41,12 @@ $tables = [
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )",
 
-    "CREATE TABLE IF NOT EXISTS tags (
+    "CREATE TABLE IF NOT EXISTS news_tags (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(30) NOT NULL UNIQUE
     )",
 
-    "CREATE TABLE IF NOT EXISTS article_tags (
+    "CREATE TABLE IF NOT EXISTS news_article_tags (
         article_id INT(6) UNSIGNED,
         tag_id INT(6) UNSIGNED,
         PRIMARY KEY (article_id, tag_id),
