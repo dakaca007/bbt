@@ -84,7 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="hidden" name="id" id="code-id" value="<?php echo htmlspecialchars($code_id); ?>">
         <button type="submit" name="action" value="insert">Insert Code</button>
         <button type="submit" name="action" value="update" onclick="if(!confirm('Are you sure you want to update?')) return false;">Update Code</button>
-        <button type="submit" name="action" value="delete" onclick="if(!confirm('Are you sure you want to delete?')) return false;">Delete Code</button>
+    </form>
+
+    <form method="POST" style="margin-top: 20px;">
+        <label for="delete-id">Enter ID to delete:</label>
+        <input type="number" id="delete-id" name="id" required>
+        <button type="submit" name="action" value="delete" onclick="if(!confirm('Are you sure you want to delete this code?')) return false;">Delete Code</button>
     </form>
 
     <h2>Messages:</h2>
