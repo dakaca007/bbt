@@ -18,7 +18,7 @@ RUN echo '<Directory /var/www/html>' > /etc/apache2/sites-available/000-default.
     echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
     echo '</Directory>' >> /etc/apache2/sites-available/000-default.conf
 # 将当前目录中的所有文件复制到工作目录
-COPY localhost/dp/ /var/www/html/
+COPY localhost/ /var/www/html/
 
 # 更改目录权限
 RUN chmod -R 777 /var/www/html/e/
