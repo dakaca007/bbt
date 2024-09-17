@@ -6,7 +6,7 @@ $conn = $db->connect();
 // 创建所需的表
 
 $tables = [
-    "CREATE TABLE IF NOT EXISTS users (
+    "CREATE TABLE IF NOT EXISTS forum_users (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(30) NOT NULL UNIQUE,
         email VARCHAR(50) NOT NULL UNIQUE,
@@ -14,13 +14,13 @@ $tables = [
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
 
-    "CREATE TABLE IF NOT EXISTS categories (
+    "CREATE TABLE IF NOT EXISTS forum_categories (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(50) NOT NULL UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
 
-    "CREATE TABLE IF NOT EXISTS threads (
+    "CREATE TABLE IF NOT EXISTS forum_threads (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         user_id INT(6) UNSIGNED,
         category_id INT(6) UNSIGNED,
@@ -31,7 +31,7 @@ $tables = [
         FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
     )",
 
-    "CREATE TABLE IF NOT EXISTS posts (
+    "CREATE TABLE IF NOT EXISTS forum_posts (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         thread_id INT(6) UNSIGNED,
         user_id INT(6) UNSIGNED,
@@ -41,7 +41,7 @@ $tables = [
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )",
 
-    "CREATE TABLE IF NOT EXISTS comments (
+    "CREATE TABLE IF NOT EXISTS forum_comments (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         post_id INT(6) UNSIGNED,
         user_id INT(6) UNSIGNED,
