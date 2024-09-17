@@ -22,8 +22,8 @@ $tables = [
         title VARCHAR(150) NOT NULL,
         content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+        FOREIGN KEY (user_id) REFERENCES blog_users(id) ON DELETE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES blog_categories(id) ON DELETE SET NULL
     )",
 
     "CREATE TABLE IF NOT EXISTS blog_categories (
@@ -38,8 +38,8 @@ $tables = [
         user_id INT(6) UNSIGNED,
         content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES blog_users(id) ON DELETE CASCADE
     )",
 
     "CREATE TABLE IF NOT EXISTS blog_tags (
@@ -51,8 +51,8 @@ $tables = [
         post_id INT(6) UNSIGNED,
         tag_id INT(6) UNSIGNED,
         PRIMARY KEY (post_id, tag_id),
-        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-        FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+        FOREIGN KEY (tag_id) REFERENCES blog_tags(id) ON DELETE CASCADE
     )"
 ];
 
