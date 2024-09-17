@@ -14,7 +14,15 @@ $tables = [
         password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
-
+     "CREATE TABLE IF NOT EXISTS blog_categories (
+        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
+    "CREATE TABLE IF NOT EXISTS blog_tags (
+        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(30) NOT NULL UNIQUE
+    )",
     "CREATE TABLE IF NOT EXISTS blog_posts (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         user_id INT(6) UNSIGNED,
@@ -26,11 +34,7 @@ $tables = [
         FOREIGN KEY (category_id) REFERENCES blog_categories(id) ON DELETE SET NULL
     )",
 
-    "CREATE TABLE IF NOT EXISTS blog_categories (
-        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(50) NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )",
+   
 
     "CREATE TABLE IF NOT EXISTS blog_comments (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -42,10 +46,7 @@ $tables = [
         FOREIGN KEY (user_id) REFERENCES blog_users(id) ON DELETE CASCADE
     )",
 
-    "CREATE TABLE IF NOT EXISTS blog_tags (
-        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(30) NOT NULL UNIQUE
-    )",
+    
 
     "CREATE TABLE IF NOT EXISTS blog_post_tags (
         post_id INT(6) UNSIGNED,
