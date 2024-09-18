@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ];
 
     if ($db->insert('blog_users', $data)) {
-        echo "注册成功！";
+        
         header("Location: blog_login.php"); // 重定向到首页或其他页面
             exit();
     } else {
