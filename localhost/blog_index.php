@@ -68,7 +68,7 @@ $posts = $db->select('blog_posts');
 
     <?php foreach ($posts as $post): ?>
         <article>
-            <h2><a href='view_post.php?id=<?= $post['id'] ?>'><?= htmlspecialchars($post['title']) ?></a></h2>
+            <h2><a href='blog_view_post.php?id=<?= $post['id'] ?>'><?= htmlspecialchars($post['title']) ?></a></h2>
             <p><?= htmlspecialchars($post['content']) ?></p>
             <small>Posted on: <?= htmlspecialchars($post['created_at']) ?></small>
         </article>
