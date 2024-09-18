@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($users) {
         if (password_verify($password, $users[0]['password'])) {
             $_SESSION['user_id'] = $users[0]['id'];
-            header("Location: index.php"); // 重定向到首页或其他页面
+            header("Location: blog_index.php"); // 重定向到首页或其他页面
             exit();
         } else {
             $error = "密码错误，请重试！";
