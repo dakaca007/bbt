@@ -60,7 +60,35 @@ $posts = $db->select('blog_posts');
         body {
             overflow: hidden; /* 防止滚动条出现 */
         }
+.navbar {
+            background: linear-gradient(135deg, #c0c0c0, #ffffff); /* 渐变金属效果 */
+            border-radius: 15px; /* 圆角 */
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            margin-bottom: 20px; /* 导航栏和内容之间的间隙 */
+        }
 
+        .navbar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center; /* 居中对齐 */
+        }
+
+        .navbar li {
+            margin: 0 15px; /* 每个链接之间的间距 */
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333; /* 链接颜色 */
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            color: #007bff; /* 鼠标悬停时的颜色 */
+        }
         .snowflake {
             position: absolute;
             top: -10px;
@@ -86,7 +114,14 @@ $posts = $db->select('blog_posts');
 <div class="container">
     <header>
         <h1>博客文章</h1>
-        <p><a href='blog_login.php'>登录</a> | <a href='blog_register.php'>注册</a> | <a href='blog_create_post.php'>发布</a> | <a href='blog_view_post.php'>查看</a></p>
+        <nav class="navbar">
+            <ul>
+                <li><a href='blog_login.php'>登录</a></li>
+                <li><a href='blog_register.php'>注册</a></li>
+                <li><a href='blog_create_post.php'>发布</a></li>
+                 
+            </ul>
+        </nav>
     </header>
 
     <?php foreach ($posts as $post): ?>
