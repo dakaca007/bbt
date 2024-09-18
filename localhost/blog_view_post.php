@@ -144,30 +144,7 @@ if (isset($_GET['id'])) {
     </form>
 </div>
 
-<script>
-    // Snowflake effect
-    function createSnowflake() {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        snowflake.textContent = '❄️';
-        snowflake.style.position = 'absolute';
-        snowflake.style.left = Math.random() * window.innerWidth + 'px';
-        snowflake.style.opacity = Math.random() + 0.2;
-        snowflake.style.fontSize = Math.random() * 25 + 10 + 'px';
-        document.body.appendChild(snowflake);
-        
-        setTimeout(() => {
-            snowflake.style.transition = 'top 3s linear';
-            snowflake.style.top = window.innerHeight + 'px';
-        }, 50);
-        
-        setTimeout(() => {
-            snowflake.remove();
-        }, 3050);
-    }
-    
-    setInterval(createSnowflake, 200);
-</script>
+ 
 </body>
 </html>
 
