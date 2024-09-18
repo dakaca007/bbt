@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'Database.php';
+require_once 'Database.php';?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
