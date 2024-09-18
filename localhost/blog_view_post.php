@@ -28,7 +28,7 @@ if (isset($_GET['id'])) {
     // 添加评论
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!isset($_SESSION['user_id'])) {
-            echo "请先登录才能评论！";
+            echo "请先登录才能评论！<a href='blog_login.php'>登录</a>";
         } else {
             $content = $_POST['content'];
             $user_id = $_SESSION['user_id'];
