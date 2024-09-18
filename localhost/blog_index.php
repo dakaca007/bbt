@@ -56,6 +56,29 @@ $posts = $db->select('blog_posts');
                 font-size: 0.9em;
             }
         }
+        /* 雪花效果 */
+        body {
+            overflow: hidden; /* 防止滚动条出现 */
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1rem;
+            pointer-events: none; /* 不阻止鼠标事件 */
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(100vh); /* 从顶部滑到底部 */
+            }
+        }
     </style>
 </head>
 <body>
@@ -75,6 +98,26 @@ $posts = $db->select('blog_posts');
         <hr>
     <?php endforeach; ?>
 </div>
+<script>
+        // 雪花生成代码
+        const snowflakeCount = 100; // 雪花数量
+        const snowContainer = document.body;
 
+        for (let i = 0; i < snowflakeCount; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.innerHTML = '&#10052;'; // 使用星星符号作为雪花
+            snowflake.style.left = Math.random() * 100 + 'vw'; // 雪花随机位置
+            snowflake.style.fontSize = Math.random() * 20 + 10 + 'px'; // 随机宽度
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's'; // 随机下落时间
+            snowflake.style.opacity = Math.random(); // 随机透明度
+            snowContainer.appendChild(snowflake);
+
+            // 删除雪花元素
+            snowflake.addEventListener('animationend', () => {
+                snowflake.remove();
+            });
+        }
+    </script>
 </body>
 </html>
