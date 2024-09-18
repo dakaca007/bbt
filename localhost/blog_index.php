@@ -56,10 +56,7 @@ $posts = $db->select('blog_posts');
                 font-size: 0.9em;
             }
         }
-        /* 雪花效果 */
-        body {
-            overflow: hidden; /* 防止滚动条出现 */
-        }
+        
 .navbar {
             background: linear-gradient(135deg, #c0c0c0, #ffffff); /* 渐变金属效果 */
             border-radius: 15px; /* 圆角 */
