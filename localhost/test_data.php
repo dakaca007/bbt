@@ -1,4 +1,5 @@
 <?php
+require_once 'Database2.php';
 $db = new Database();
 $conn = $db->connect();
 
