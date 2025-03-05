@@ -98,7 +98,7 @@ $files = array_diff(scandir($upload_dir), ['.', '..', '.htaccess']);
         <tr>
             <td>
                 <div class="preview">
-                    <?php if (str_starts_with(mime_content_type($upload_dir . $file), 'image/')): ?>
+                    <?php if (substr(mime_content_type($upload_dir . $file), 0, 6) === 'image/'): ?>
                         <img src="?action=download&file=<?= urlencode($file) ?>">
                     <?php else: ?>
                         <?= htmlspecialchars(substr($file, 14)) // 去除前面的随机前缀 ?> 
