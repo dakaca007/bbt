@@ -1,7 +1,8 @@
 <?php
 // 配置文件设置
 $upload_dir = __DIR__ . '/uploads/';  // 上传目录
-$allowed_types = ['*']; // 允许的文件类型
+ 
+$allowed_types = ['txt', 'jpg', 'png', 'pdf', 'docx','php','js','css','html']; // 允许的文件类型
 $max_size = 5 * 1024 * 1024; // 5MB
 
 // 自动创建上传目录
