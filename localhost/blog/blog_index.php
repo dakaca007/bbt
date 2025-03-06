@@ -13,6 +13,10 @@ include 'header.php';
         <h1>博客文章</h1>
         <nav>
             <ul>
+                <li><a href="blog_index.php">首页</a></li>
+                <li><a href="blog_manage_tags.php">管理标签</a></li>
+                <li><a href="blog_manage_categories.php">管理目录</a></li>
+                <li><a href="blog_profile.php">个人信息</a></li>
                 <li><a href="blog_login.php">登录</a></li>
                 <li><a href="blog_register.php">注册</a></li>
                 <li><a href="blog_create_post.php">发布</a></li>
