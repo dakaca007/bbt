@@ -68,7 +68,18 @@ class Database {
         }
         return $stmt->execute();
     }
-
+ public function query($sql, $params = []) {
+    $stmt = $this->conn->prepare($sql);
+    foreach ($params as $key => $value) {
+        $paramType = PDO::PARAM_STR;
+        if (is_int($value)) {
+            $paramType = PDO::PARAM_INT;
+        }
+        $stmt->bindValue($key, $value, $paramType);
+    }
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
     public function delete($table, $conditions, $params = []) {
         $sql = "DELETE FROM $table WHERE " . implode(" AND ", $conditions);
         $stmt = $this->conn->prepare($sql);
