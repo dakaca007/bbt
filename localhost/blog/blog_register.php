@@ -1,88 +1,40 @@
 <?php
-session_start();
-require_once 'Database.php';
+require_once 'init.php';
+$db = new Database();
+$conn = $db->connect();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $db = new Database();
-    $conn = $db->connect();
-
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-    $data = [
-        'username' => $username,
-        'email' => $email,
-        'password' => $password
-    ];
-
-    if ($db->insert('blog_users', $data)) {
-        
-        header("Location: blog_login.php"); // 重定向到首页或其他页面
+    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    
+    if ($email && $password && $password === $confirm_password) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $data = [
+            'email' => $email,
+            'password' => $hashedPassword
+        ];
+        if ($db->insert('blog_users', $data)) {
+            header("Location: blog_login.php");
             exit();
+        } else {
+            $error = "注册失败，请重试。";
+        }
     } else {
-        echo "注册失败！";
+        $error = "请确保填写正确，并且两次密码一致。";
     }
 }
+include 'header.php';
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户注册</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        form {
-            width: 300px;
-            padding: 20px;
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            text-align: center;
-        }
-        input {
-            width: 100%;
-            margin: 10px 0;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            color: red;
-        }
-    </style>
-</head>
-<body>
- 
-<form method="POST">
-    用户名: <input type="text" name="username" required><br>
-    邮箱: <input type="email" name="email" required><br>
-    密码: <input type="password" name="password" required><br>
-    <button type="submit">注册</button>
-</form>
-</body>
-</html>
+<div class="container">
+    <h2>用户注册</h2>
+    <?php if(isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
+    <form method="POST">
+        <input type="email" name="email" placeholder="请输入邮箱" required>
+        <input type="password" name="password" placeholder="请输入密码" required>
+        <input type="password" name="confirm_password" placeholder="确认密码" required>
+        <button type="submit">注册</button>
+    </form>
+    <p>已有账号？<a href="blog_login.php">登录</a></p>
+</div>
+<?php include 'footer.php'; ?>
