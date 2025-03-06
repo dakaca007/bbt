@@ -1,11 +1,11 @@
 <?php
 require_once 'init.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: blog_login.php");
+    exit();
+}
 $db = new Database();
 $conn = $db->connect();
-
-$db = new Database();
-$conn = $db->connect();
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tag_name'])) {
     $data = ['name' => $_POST['tag_name']];
     if ($db->insert('blog_tags', $data)) {
