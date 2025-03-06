@@ -1,68 +1,71 @@
 <?php
-// 设置音乐目录
-$musicDir = '/';
-
-// 获取音乐文件列表
-$musicFiles = [];
-if (is_dir($musicDir)) {
-    $files = scandir($musicDir);
-    foreach ($files as $file) {
-        $path = $musicDir . $file;
-        if (is_file($path) && in_array(pathinfo($path, PATHINFO_EXTENSION), ['mp3', 'wav'])) {
-            $musicFiles[] = [
-                'name' => pathinfo($path, PATHINFO_FILENAME),
-                'path' => $path
-            ];
-        }
-    }
-}
+// 手动配置外网音乐列表（示例）
+$musicFiles = [
+    
+    [
+        'name' => '流浪兄弟',
+        'path' => 'http://bbt.free.nf/流浪兄弟.mp3'
+    ]
+];
 ?>
 
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>PHP音乐播放器</title>
+    <title>外网音乐播放器</title>
     <style>
         .player-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            text-align: center;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         #audio-player {
             width: 100%;
-            margin: 20px 0;
+            margin: 1.5rem 0;
+            border-radius: 8px;
         }
 
         .playlist {
             list-style: none;
             padding: 0;
+            margin-top: 1.5rem;
         }
 
         .playlist li {
-            padding: 10px;
-            margin: 5px;
-            background: #fff;
+            padding: 12px 20px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
         }
 
         .playlist li:hover {
-            background: #e0e0e0;
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        #now-playing {
+            margin-top: 1rem;
+            font-weight: 500;
+            color: #2d3436;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
     <div class="player-container">
-        <h2>简单音乐播放器</h2>
+        <h2>外网音乐播放器</h2>
         
         <!-- 音频播放器 -->
         <audio id="audio-player" controls>
-            <source src="" type="audio/mpeg">
             您的浏览器不支持音频播放
         </audio>
 
@@ -70,12 +73,13 @@ if (is_dir($musicDir)) {
         <ul class="playlist">
             <?php if (!empty($musicFiles)): ?>
                 <?php foreach ($musicFiles as $index => $music): ?>
-                    <li onclick="playMusic('<?= urlencode($music['path']) ?>', '<?= $music['name'] ?>')">
-                        <?= $index + 1 ?>. <?= htmlspecialchars($music['name']) ?>
+                    <li onclick="playMusic('<?= htmlspecialchars(urlencode($music['path'])) ?>', '<?= htmlspecialchars($music['name']) ?>')">
+                        <span style="margin-right: 15px; color: #6c757d;"><?= $index + 1 ?>.</span>
+                        <span><?= htmlspecialchars($music['name']) ?></span>
                     </li>
                 <?php endforeach; ?>
             <?php else: ?>
-                <li>没有找到音乐文件</li>
+                <li style="cursor: default; background: transparent;">暂无可播放音乐</li>
             <?php endif; ?>
         </ul>
 
@@ -84,26 +88,42 @@ if (is_dir($musicDir)) {
 
     <script>
         const player = document.getElementById('audio-player');
-        
-        function playMusic(path, name) {
-            // 解码URL编码的路径
-            const decodedPath = decodeURIComponent(path);
-            
-            // 更新音频源
-            player.src = decodedPath;
-            player.load();
-            player.play();
-            
-            // 更新显示
-            document.getElementById('now-playing').innerHTML = `正在播放: ${name}`;
+        let currentSong = null;
+
+        function playMusic(encodedPath, name) {
+            try {
+                const decodedPath = decodeURIComponent(encodedPath);
+                player.src = decodedPath;
+                player.play();
+                
+                // 更新当前播放显示
+                currentSong = name;
+                document.getElementById('now-playing').textContent = `正在播放：${currentSong}`;
+                
+                // 更新列表项状态
+                document.querySelectorAll('.playlist li').forEach(item => {
+                    item.style.background = item.textContent.includes(name) ? '#e3f2fd' : '#f8f9fa';
+                });
+            } catch (error) {
+                console.error('播放错误:', error);
+                alert('无法播放该音乐，请检查文件地址');
+            }
         }
 
-        // 自动播放下一首（可选功能）
-        player.addEventListener('ended', function() {
-            const currentItem = document.querySelector('.playlist li:hover');
-            if (currentItem && currentItem.nextElementSibling) {
-                currentItem.nextElementSibling.click();
+        // 自动下一曲功能
+        player.addEventListener('ended', () => {
+            const currentIndex = [...document.querySelectorAll('.playlist li')]
+                .findIndex(item => item.textContent.includes(currentSong));
+            
+            if (currentIndex >= 0 && currentIndex < <?= count($musicFiles) - 1 ?>) {
+                document.querySelectorAll('.playlist li')[currentIndex + 1].click();
             }
+        });
+
+        // 错误处理
+        player.addEventListener('error', (e) => {
+            console.error('播放器错误:', e);
+            document.getElementById('now-playing').textContent = '播放失败：请检查网络连接或文件地址';
         });
     </script>
 </body>
