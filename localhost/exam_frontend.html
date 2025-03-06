@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>体检预约</title>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet>
+    <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- 预约日历 -->
+        <div id="calendar" class="mb-4"></div>
+        
+        <!-- 时间段选择 -->
+        <div id="timeSlots" class="row"></div>
+        
+        <!-- 套餐选择 -->
+        <div class="card">
+            <div class="card-header">选择体检套餐</div>
+            <div class="card-body" id="packages"></div>
+        </div>
+    </div>
+
+    <script>
+    // 初始化日历
+    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        dateClick: function(info) {
+            loadTimeSlots(info.dateStr);
+        }
+    });
+    calendar.render();
+
+    // 加载可预约时间段
+    async function loadTimeSlots(date) {
+        const res = await fetch(`exam_api.php?action=timeslots&date=${date}`);
+        const data = await res.json();
+        
+        let html = '';
+        data.forEach(slot => {
+            html += `<div class="col-md-3 mb-3">
+                <div class="card time-slot ${slot.available ? 'bg-light' : 'bg-secondary'}">
+                    <div class="card-body">
+                        <h5>${slot.time}</h5>
+                        <p>剩余：${slot.remaining}</p>
+                        <button class="btn btn-primary" 
+                            ${!slot.available ? 'disabled' : ''}
+                            onclick="selectSlot('${date}', '${slot.time}')">
+                            选择
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        document.getElementById('timeSlots').innerHTML = html;
+    }
+
+    // 加载体检套餐
+    async function loadPackages() {
+        const res = await fetch('exam_api.php?action=packages');
+        const packages = await res.json();
+        
+        let html = '';
+        packages.forEach(pkg => {
+            html += `<div class="form-check">
+                <input class="form-check-input" type="radio" 
+                    name="package" value="${pkg.id}" id="pkg${pkg.id}">
+                <label class="form-check-label" for="pkg${pkg.id}">
+                    ${pkg.name} - ¥${pkg.price}
+                </label>
+                <p class="text-muted">${pkg.description}</p>
+            </div>`;
+        });
+        document.getElementById('packages').innerHTML = html;
+    }
+
+    // 初始化加载
+    loadPackages();
+    </script>
+</body>
+</html>
