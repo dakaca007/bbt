@@ -59,6 +59,20 @@
         <?php else: ?>
             <li><a href="login.php">登录</a></li>
             <li><a href="register.php">注册</a></li>
+        <li><a href="blog_index.php">首页</a></li>
+                <li><a href="https://bbt.onrender.com/file.php">简易网盘</a></li>
+                <li><a href="blog_manage_tags.php">管理标签</a></li>
+                <li><a href="blog_manage_categories.php">管理目录</a></li>
+                <li><a href="blog_profile.php">个人信息</a></li>
+                <li><a href="blog_login.php">登录</a></li>
+                <li><a href="blog_register.php">注册</a></li>
+                <li><a href="blog_create_post.php">发布</a></li>
+                <li><a href="manage_tags.php">管理标签</a></li>
+                <li><a href="register.php">注册</a></li>
+                <li><a href="login.php">登录</a></li>
+                 <li><a href="view_post.php">查看</a></li>
+                 <li><a href="blog_add_comment.php">添加</a></li>
+                <li><a href="create_post.php">发布</a></li>
         <?php endif; ?>
     </ul>
 </nav>
