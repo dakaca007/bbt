@@ -53,6 +53,8 @@ $tags = $db->select('blog_tags');
 
 include 'header.php';
 ?>
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+<script>CKEDITOR.replace('content');</script>
 <div class="container">
     <header>
         <h2>发布新文章</h2>
