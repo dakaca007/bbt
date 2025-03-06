@@ -33,22 +33,5 @@ include 'header.php';
         <hr>
     <?php endforeach; ?>
 </div>
-<script>
-// 雪花动画代码
-const snowflakeCount = 100;
-const snowContainer = document.body;
-for (let i = 0; i < snowflakeCount; i++) {
-    const snowflake = document.createElement('div');
-    snowflake.className = 'snowflake';
-    snowflake.innerHTML = '&#10052;';
-    snowflake.style.left = Math.random() * 100 + 'vw';
-    snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
-    snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-    snowflake.style.opacity = Math.random();
-    snowContainer.appendChild(snowflake);
-    snowflake.addEventListener('animationend', () => {
-        snowflake.remove();
-    });
-}
-</script>
+
 <?php include 'footer.php'; ?>
