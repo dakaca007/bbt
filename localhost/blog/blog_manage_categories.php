@@ -1,8 +1,9 @@
 <?php
 require_once 'init.php';
-$db = new Database();
-$conn = $db->connect();
-
+if (!isset($_SESSION['user_id'])) {
+    header("Location: blog_login.php");
+    exit();
+}
 $db = new Database();
 $conn = $db->connect();
 
