@@ -1,6 +1,7 @@
 <?php
-session_start();
-require_once 'Database.php';
+require_once 'init.php';
+$db = new Database();
+$conn = $db->connect();
 
 // 如果用户未登录，重定向到登录页面
 if (!isset($_SESSION['user_id'])) {
