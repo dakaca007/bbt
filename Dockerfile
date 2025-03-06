@@ -1,7 +1,7 @@
 # 使用官方的 PHP + Apache 镜像
 FROM php:7.4-apache
 
-# 安装 GD 扩展及其他依赖
+# 安装 GD 扩展及其他依赖（修正多行RUN格式）
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd \
     && docker-php-ext-install pdo pdo_mysql \
-    && a2enmod rewrite headers \  # 启用 headers 模块
+    && a2enmod rewrite headers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
