@@ -26,6 +26,7 @@ include 'header.php';
                 <li><a href="login.php">登录</a></li>
                  <li><a href="view_post.php">查看</a></li>
                  <li><a href="blog_add_comment.php">添加</a></li>
+                <li><a href="create_post.php">发布</a></li>
             </ul>
         </nav>
     </header>
