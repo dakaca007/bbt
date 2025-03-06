@@ -49,8 +49,16 @@
     </style>
 </head>
 <body>
-<?php if (isset($_SESSION['username'])): ?>
-    <li><a href="blog_logout.php">注销</a></li>
-<?php else: ?>
-    <li><a href="blog_login.php">登录</a></li>
-<?php endif; ?>
+
+<nav>
+    <ul>
+        <!-- 其他菜单项 -->
+        <?php if (isset($_SESSION['username'])): ?>
+            <li>欢迎，<?= $_SESSION['username'] ?></li>
+            <li><a href="blog_logout.php">退出</a></li>
+        <?php else: ?>
+            <li><a href="login.php">登录</a></li>
+            <li><a href="register.php">注册</a></li>
+        <?php endif; ?>
+    </ul>
+</nav>
