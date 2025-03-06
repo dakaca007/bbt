@@ -27,7 +27,7 @@ class Database {
     }
 
     public function insert($table, $data) {
-        $data = Security::sanitizeInput($data);
+         
         $columns = implode(", ", array_keys($data));
         $placeholders = ":" . implode(", :", array_keys($data));
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
@@ -44,7 +44,7 @@ class Database {
 
     // 优化后的查询方法，支持参数绑定
     public function select($table, $conditions = [], $params = []) {
-        $params = Security::sanitizeInput($params);
+         
         $sql = "SELECT * FROM $table";
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(" AND ", $conditions);
