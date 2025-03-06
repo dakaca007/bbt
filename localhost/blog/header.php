@@ -49,3 +49,8 @@
     </style>
 </head>
 <body>
+<?php if (isset($_SESSION['username'])): ?>
+    <li><a href="blog_logout.php">注销</a></li>
+<?php else: ?>
+    <li><a href="blog_login.php">登录</a></li>
+<?php endif; ?>
