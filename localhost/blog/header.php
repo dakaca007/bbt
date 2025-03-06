@@ -27,7 +27,7 @@
         }
 
         /* 响应式设计 */
-        @media (max-width: 768px) {
+        @media (max-width: 2000px) {
             nav ul {
                 display: none;
                 flex-direction: column;
