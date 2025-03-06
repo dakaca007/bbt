@@ -21,6 +21,11 @@ include 'header.php';
                 <li><a href="blog_login.php">登录</a></li>
                 <li><a href="blog_register.php">注册</a></li>
                 <li><a href="blog_create_post.php">发布</a></li>
+                <li><a href="manage_tags.php">管理标签</a></li>
+                <li><a href="register.php">注册</a></li>
+                <li><a href="login.php">登录</a></li>
+                 <li><a href="view_post.php">查看</a></li>
+                 <li><a href="blog_add_comment.php">添加</a></li>
             </ul>
         </nav>
     </header>
