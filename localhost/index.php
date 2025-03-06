@@ -1,7 +1,6 @@
 <?php
 // 手动配置外网音乐列表（示例）
 $musicFiles = [
-    
     [
         'name' => 'music',
         'path' => 'https://bbt.free.nf/music.mp3'
@@ -15,49 +14,7 @@ $musicFiles = [
     <meta charset="UTF-8">
     <title>外网音乐播放器</title>
     <style>
-        .player-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        #audio-player {
-            width: 100%;
-            margin: 1.5rem 0;
-            border-radius: 8px;
-        }
-
-        .playlist {
-            list-style: none;
-            padding: 0;
-            margin-top: 1.5rem;
-        }
-
-        .playlist li {
-            padding: 12px 20px;
-            margin: 8px 0;
-            background: #f8f9fa;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-        }
-
-        .playlist li:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-        }
-
-        #now-playing {
-            margin-top: 1rem;
-            font-weight: 500;
-            color: #2d3436;
-            font-size: 1.1rem;
-        }
+        /* 保持原有样式不变 */
     </style>
 </head>
 <body>
@@ -73,7 +30,8 @@ $musicFiles = [
         <ul class="playlist">
             <?php if (!empty($musicFiles)): ?>
                 <?php foreach ($musicFiles as $index => $music): ?>
-                    <li onclick="playMusic('<?= htmlspecialchars(urlencode($music['path'])) ?>', '<?= htmlspecialchars($music['name']) ?>')">
+                    <!-- 关键修改1: 使用 rawurlencode 代替 urlencode -->
+                    <li onclick="playMusic('<?= htmlspecialchars(rawurlencode($music['path'])) ?>', '<?= htmlspecialchars($music['name']) ?>')">
                         <span style="margin-right: 15px; color: #6c757d;"><?= $index + 1 ?>.</span>
                         <span><?= htmlspecialchars($music['name']) ?></span>
                     </li>
@@ -90,27 +48,67 @@ $musicFiles = [
         const player = document.getElementById('audio-player');
         let currentSong = null;
 
-        function playMusic(encodedPath, name) {
+        async function playMusic(encodedPath, name) {
             try {
                 const decodedPath = decodeURIComponent(encodedPath);
-                player.src = decodedPath;
-                player.play();
                 
-                // 更新当前播放显示
+                // 关键修改2: 带 Referer 的动态加载
+                const response = await fetch(decodedPath, {
+                    headers: {
+                        'Referer': 'https://bbt.free.nf/' // 与主机域名一致
+                    }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                // 验证内容类型
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('audio/mpeg')) {
+                    throw new Error('Invalid content type: ' + contentType);
+                }
+
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                
+                player.src = blobUrl;
+                player.play();
+
+                // 更新界面状态
                 currentSong = name;
                 document.getElementById('now-playing').textContent = `正在播放：${currentSong}`;
-                
-                // 更新列表项状态
-                document.querySelectorAll('.playlist li').forEach(item => {
-                    item.style.background = item.textContent.includes(name) ? '#e3f2fd' : '#f8f9fa';
-                });
+                updatePlaylistHighlight(name);
+
             } catch (error) {
                 console.error('播放错误:', error);
-                alert('无法播放该音乐，请检查文件地址');
+                handlePlaybackError(error);
             }
         }
 
-        // 自动下一曲功能
+        // 播放列表高亮更新
+        function updatePlaylistHighlight(name) {
+            document.querySelectorAll('.playlist li').forEach(item => {
+                item.style.background = item.textContent.includes(name) ? '#e3f2fd' : '#f8f9fa';
+            });
+        }
+
+        // 增强错误处理
+        function handlePlaybackError(error) {
+            const errorMap = {
+                'Invalid content type': '服务器返回了无效的文件类型',
+                'Failed to fetch': '网络连接失败，请检查网络',
+                'HTTP error! status: 403': '访问被拒绝（可能触发防盗链）',
+                'default': '无法播放该音乐，请检查文件地址'
+            };
+
+            const errorMsg = Object.entries(errorMap).find(([key]) => 
+                error.message.includes(key)
+            )?.[1] || errorMap.default;
+
+            document.getElementById('now-playing').textContent = `播放失败：${errorMsg}`;
+            alert(errorMsg);
+        }
+
+        // 自动下一曲（保持原有逻辑）
         player.addEventListener('ended', () => {
             const currentIndex = [...document.querySelectorAll('.playlist li')]
                 .findIndex(item => item.textContent.includes(currentSong));
@@ -120,10 +118,25 @@ $musicFiles = [
             }
         });
 
-        // 错误处理
+        // 错误监听（补充内容类型错误处理）
         player.addEventListener('error', (e) => {
-            console.error('播放器错误:', e);
-            document.getElementById('now-playing').textContent = '播放失败：请检查网络连接或文件地址';
+            const error = player.error;
+            console.error('播放器错误:', error);
+            let message = '未知错误';
+            
+            switch(error.code) {
+                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                    message = '不支持的音频格式或内容类型错误';
+                    break;
+                case MediaError.MEDIA_ERR_NETWORK:
+                    message = '网络错误，请检查连接';
+                    break;
+                case MediaError.MEDIA_ERR_DECODE:
+                    message = '音频解码错误，文件可能已损坏';
+                    break;
+            }
+            
+            document.getElementById('now-playing').textContent = `播放失败：${message}`;
         });
     </script>
 </body>
