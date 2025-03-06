@@ -42,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include 'header.php';
 ?>
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+<script>CKEDITOR.replace('content');</script>
 <div class="container">
     <h2>发布新文章</h2>
     <?php if ($error): ?>
