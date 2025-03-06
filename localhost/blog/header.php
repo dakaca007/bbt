@@ -85,8 +85,8 @@
             <li><a href="blog_index.php">首页</a></li>
             <li><a href="https://bbt.onrender.com/file.php">简易网盘</a></li>
             <li><a href="blog_profile.php">个人信息</a></li>
-            <li><a href="blog_login.php">登录</a></li>
-            <li><a href="blog_register.php">注册</a></li>
+             <li><a href="admin.php">管理</a></li>
+         <li><a href="blog_edit_post.php">编辑</a></li>
         <?php endif; ?>
     </ul>
 </nav>
