@@ -14,6 +14,7 @@ include 'header.php';
         <nav>
             <ul>
                 <li><a href="blog_index.php">首页</a></li>
+                <li><a href="https://bbt.onrender.com/file.php">简易网盘</a></li>
                 <li><a href="blog_manage_tags.php">管理标签</a></li>
                 <li><a href="blog_manage_categories.php">管理目录</a></li>
                 <li><a href="blog_profile.php">个人信息</a></li>
