@@ -3,8 +3,8 @@
 $musicFiles = [
     
     [
-        'name' => '流浪兄弟',
-        'path' => 'https://bbt.free.nf/流浪兄弟.mp3'
+        'name' => 'music',
+        'path' => 'https://bbt.free.nf/music.mp3'
     ]
 ];
 ?>
