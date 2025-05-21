@@ -1,190 +1,291 @@
-<?php 
-// index.php  (兼容PHP8.0+)
-header('Content-Type: text/html; charset=utf-8');
-header('X-Accel-Buffering: no'); // 禁用缓冲提升流媒体性能 
- 
-$api_url = "https://api.kuleu.com/api/MP4_xiaojiejie?type=json"; 
- 
-class VideoAPI {
-    private static $cache = [];
- 
-    public static function getVideo($count = 3) {
-        if(empty(self::$cache)) {
-            for($i=0; $i<$count; $i++){
-                $response = file_get_contents(self::$api_url);
-                self::$cache[] = json_decode($response, true);
-            }
-        }
-        return array_shift(self::$cache);
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <!-- 安卓音频策略优化 -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>短视频播放器-2025优化版</title>
+    <title>纯JS短视频播放器</title>
     <style>
         :root {
             --primary-color: #ff6b6b;
             --progress-height: 3px;
         }
+        
         #video-container {
             height: 100vh;
             overflow: hidden;
             scroll-snap-type: y mandatory;
             background: #000;
-        }
-        .video-wrapper {
-            height: 100vh;
             position: relative;
-            opacity: 0;
-            transition: opacity 0.5s, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         }
+
+        .video-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .video-wrapper.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
         video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scale(1.02); /* 消除边框间隙 */
+            background: #000;
         }
+
         .progress-bar {
             position: absolute;
             top: 0;
             left: 0;
-            height: var(--progress-height);
-            background: rgba(255,107,107,0.3);
             width: 100%;
+            height: var(--progress-height);
+            background: rgba(255,255,255,0.3);
             z-index: 10;
         }
-        .progress-bar::after {
-            content: '';
-            display: block;
-            width: var(--progress);
+
+        .progress-inner {
             height: 100%;
             background: var(--primary-color);
-            transition: width 0.3s linear;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* 加载提示 */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="video-container">
-        <?php for($i=0; $i<2; $i++): // 预加载两个视频 ?>
-        <div class="video-wrapper" data-state="<?= $i === 0 ? 'active' : 'pending' ?>">
-            <video <?= $i === 0 ? 'autoplay' : '' ?> muted playsinline>
-                <source src="<?= VideoAPI::getVideo()['mp4_video'] ?>" type="video/mp4">
-            </video>
-            <div class="progress-bar"></div>
-        </div>
-        <?php endfor; ?>
-    </div>
- 
-    <script>
-    class VideoPlayer {
-        constructor() {
-            this.container  = document.getElementById('video-container'); 
-            this.currentIndex  = 0;
-            this.isSwiping  = false;
-            this.touchStartY  = 0;
-            this.initEventListeners(); 
-            this.audioContext  = new (window.AudioContext || window.webkitAudioContext)(); 
-            this.initAudioAnalyser(); 
+    <div id="video-container"></div>
+    <div class="loading">正在加载视频...</div>
+
+<script>
+class VideoPlayer {
+    constructor() {
+        this.container = document.getElementById('video-container');
+        this.loading = document.querySelector('.loading');
+        this.currentIndex = 0;
+        this.videoQueue = [];
+        this.isSwiping = false;
+        this.touchStartY = 0;
+        
+        // 配置项
+        this.config = {
+            preloadCount: 2,     // 预加载视频数
+            apiUrl: 'https://api.kuleu.com/api/MP4_xiaojiejie?type=json',
+            fallbackVideo: 'https://example.com/fallback.mp4'
         }
- 
-        initEventListeners() {
-            // 触摸事件 
-            this.container.addEventListener('touchstart',  e => {
-                this.touchStartY  = e.touches[0].clientY; 
-            }, { passive: true });
- 
-            this.container.addEventListener('touchend',  e => {
-                const deltaY = e.changedTouches[0].clientY  - this.touchStartY; 
-                if(Math.abs(deltaY)  > 50 && !this.isSwiping)  {
-                    this.handleSwipe(deltaY  > 0 ? 'down' : 'up');
-                }
-            });
- 
-            // 视频事件 
-            document.querySelectorAll('video').forEach(video  => {
-                video.addEventListener('ended',  () => this.loadNextVideo()); 
-                video.addEventListener('timeupdate',  e => this.updateProgressBar(e.target)); 
-            });
- 
-            // 音频交互解锁 
-            document.addEventListener('click',  () => {
-                this.unmuteAllVideos(); 
-            }, { once: true });
-        }
- 
-        async handleSwipe(direction) {
-            this.isSwiping  = true;
-            const currentVideo = this.getCurrentVideo(); 
-            
-            // 滑动动画 
-            this.container.style.transform  = `translateY(${direction === 'down' ? '100%' : '-100%'})`;
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // 加载新视频 
-            const newVideo = await this.fetchNewVideo(); 
-            this.insertVideoElement(newVideo,  direction);
-            
-            // 重置布局 
-            this.container.style.transform  = '';
-            this.isSwiping  = false;
-            currentVideo.remove(); 
-        }
- 
-        async fetchNewVideo() {
-            const res = await fetch('api_proxy.php?_t='  + Date.now()); 
-            return res.json(); 
-        }
- 
-        insertVideoElement(videoData, direction) {
-            const wrapper = document.createElement('div'); 
-            wrapper.className  = 'video-wrapper';
-            wrapper.innerHTML  = `
-                <video autoplay muted playsinline>
-                    <source src="${videoData.mp4_video}"  type="video/mp4">
-                </video>
-                <div class="progress-bar"></div>
-            `;
-            direction === 'down' 
-                ? this.container.prepend(wrapper)  
-                : this.container.append(wrapper); 
-            
-            setTimeout(() => wrapper.style.opacity  = '1', 50);
-        }
- 
-        updateProgressBar(video) {
-            const progress = (video.currentTime  / video.duration)  * 100;
-            video.parentElement.querySelector('.progress-bar').style.setProperty('--progress',  `${progress}%`);
-        }
- 
-        unmuteAllVideos() {
-            document.querySelectorAll('video').forEach(v  => {
-                v.muted  = false;
-                v.volume  = 0.5;
-            });
-        }
- 
-        initAudioAnalyser() {
-            // 音频可视化扩展接口 
-            const analyser = this.audioContext.createAnalyser(); 
-            analyser.fftSize  = 256;
-            // ...可扩展音频可视化逻辑 
+
+        this.init();
+    }
+
+    async init() {
+        // 初始加载
+        await this.loadVideos(this.config.preloadCount);
+        this.initEventListeners();
+        this.playCurrentVideo();
+    }
+
+    async loadVideos(count = 1) {
+        try {
+            this.showLoading();
+            const requests = Array.from({ length: count }, () => 
+                fetch(this.config.apiUrl).then(res => res.json())
+            );
+            const newVideos = await Promise.all(requests);
+            this.videoQueue.push(...newVideos);
+            this.renderVideos();
+            this.hideLoading();
+        } catch (error) {
+            console.error('视频加载失败:', error);
+            this.loadFallbackVideo();
         }
     }
- 
-    // 初始化播放器 
-    const player = new VideoPlayer();
- 
-    // 移动端陀螺仪增强（可选）
-    if(window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation',  e => {
-            player.container.style.transform  = `rotate(${e.gamma  * 0.3}deg)`;
-        }, true);
+
+    renderVideos() {
+        this.videoQueue.forEach((video, index) => {
+            if (!document.getElementById(`video-${index}`)) {
+                const wrapper = this.createVideoElement(video, index);
+                this.container.appendChild(wrapper);
+            }
+        });
     }
-    </script>
+
+    createVideoElement(videoData, index) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `video-wrapper ${index === 0 ? 'active' : ''}`;
+        wrapper.id = `video-${index}`;
+
+        const video = document.createElement('video');
+        video.muted = true;
+        video.playsInline = true;
+        
+        const source = document.createElement('source');
+        source.src = videoData.mp4_video || this.config.fallbackVideo;
+        source.type = 'video/mp4';
+
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+        progressBar.innerHTML = '<div class="progress-inner"></div>';
+
+        video.addEventListener('loadeddata', () => {
+            wrapper.style.opacity = '1';
+            if (index === 0) video.play();
+        });
+
+        video.addEventListener('error', () => {
+            source.src = this.config.fallbackVideo;
+            video.load();
+        });
+
+        video.addEventListener('timeupdate', () => {
+            const progress = (video.currentTime / video.duration) * 100;
+            progressBar.querySelector('.progress-inner').style.width = `${progress}%`;
+        });
+
+        video.addEventListener('ended', () => this.playNextVideo());
+
+        wrapper.appendChild(video);
+        wrapper.appendChild(progressBar);
+        video.appendChild(source);
+
+        return wrapper;
+    }
+
+    initEventListeners() {
+        let touchStartY = 0;
+        const container = this.container;
+
+        // 触摸事件处理
+        container.addEventListener('touchstart', e => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', e => {
+            const deltaY = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(deltaY) > 50 && !this.isSwiping) {
+                this.handleSwipe(deltaY > 0 ? 'down' : 'up');
+            }
+        });
+
+        // 点击解静音
+        document.addEventListener('click', () => {
+            this.unmuteAllVideos();
+        }, { once: true });
+    }
+
+    async handleSwipe(direction) {
+        if (this.isSwiping) return;
+        this.isSwiping = true;
+
+        // 预加载新视频
+        if (this.videoQueue.length <= 1) {
+            await this.loadVideos(1);
+        }
+
+        const currentVideo = this.getCurrentVideo();
+        const newIndex = direction === 'down' ? this.currentIndex + 1 : this.currentIndex - 1;
+
+        if (newIndex >= 0 && newIndex < this.videoQueue.length) {
+            this.playVideo(newIndex);
+            this.currentIndex = newIndex;
+        }
+
+        this.isSwiping = false;
+    }
+
+    playVideo(index) {
+        const currentWrapper = document.querySelector('.video-wrapper.active');
+        const newWrapper = document.getElementById(`video-${index}`);
+        
+        if (currentWrapper) currentWrapper.classList.remove('active');
+        newWrapper.classList.add('active');
+        
+        const video = newWrapper.querySelector('video');
+        video.currentTime = 0;
+        video.play();
+    }
+
+    playNextVideo() {
+        const nextIndex = this.currentIndex + 1;
+        if (nextIndex < this.videoQueue.length) {
+            this.playVideo(nextIndex);
+            this.currentIndex = nextIndex;
+        } else {
+            this.loadVideos(1).then(() => this.playVideo(nextIndex));
+        }
+    }
+
+    getCurrentVideo() {
+        return document.getElementById(`video-${this.currentIndex}`)?.querySelector('video');
+    }
+
+    unmuteAllVideos() {
+        document.querySelectorAll('video').forEach(video => {
+            video.muted = false;
+            video.volume = 0.5;
+        });
+    }
+
+    showLoading() {
+        this.loading.style.display = 'block';
+    }
+
+    hideLoading() {
+        this.loading.style.display = 'none';
+    }
+
+    loadFallbackVideo() {
+        if (!this.videoQueue.length) {
+            this.videoQueue.push({ mp4_video: this.config.fallbackVideo });
+            this.renderVideos();
+        }
+    }
+}
+
+// 初始化播放器
+const player = new VideoPlayer();
+
+// 兼容自动播放策略
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const firstVideo = document.querySelector('video');
+        if (firstVideo && firstVideo.paused) {
+            firstVideo.play().catch(() => {
+                const playButton = document.createElement('div');
+                playButton.textContent = '点击播放';
+                playButton.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    padding: 12px 24px;
+                    background: #ff6b6b;
+                    color: white;
+                    border-radius: 24px;
+                    cursor: pointer;
+                    z-index: 100;
+                `;
+                playButton.onclick = () => {
+                    document.querySelectorAll('video').forEach(v => v.play());
+                    playButton.remove();
+                };
+                document.body.appendChild(playButton);
+            });
+        }
+    }, 1000);
+});
+</script>
 </body>
 </html>
