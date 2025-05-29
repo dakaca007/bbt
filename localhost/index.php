@@ -1,2 +1,2 @@
 <?php
-echo phoinfo();
+echo phpinfo();
