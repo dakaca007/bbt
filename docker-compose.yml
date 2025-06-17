@@ -1,9 +1,11 @@
 version: '3.8'
-
 services:
   web:
     build: .
     ports:
       - "80:80"
     volumes:
-      - ./localhost/dp:/var/www/html
+      - ./localhost:/var/www/html  # 确保路径正确
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
