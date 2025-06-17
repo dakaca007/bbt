@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>在线炸金花游戏</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body { font-family: "微软雅黑", Arial, sans-serif; background: #f6f6f6; margin: 0; padding: 0; }
+        .container { max-width: 420px; margin: 30px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc; padding: 20px; }
+        h2 { text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type=text], input[type=password], input[type=number] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background: #007bff; color: #fff; border: none; border-radius: 4px; font-size: 16px; }
+        button:active { background: #0056b3; }
+        .msg { color: #d9534f; text-align: center; margin: 10px 0; }
+        .success { color: #28a745; }
+        .game-area { margin-top: 20px; }
+        @media (max-width: 500px) {
+            .container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>炸金花在线游戏</h2>
+    <div id="user-area">
+        <div id="login-form">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="login-username">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="login-password">
+            </div>
+            <button onclick="login()">登录</button>
+            <button onclick="showRegister()">注册</button>
+        </div>
+        <div id="register-form" style="display:none;">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="reg-username">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="reg-password">
+            </div>
+            <button onclick="register()">注册</button>
+            <button onclick="showLogin()">返回登录</button>
+        </div>
+    </div>
+    <div id="game-area" class="game-area" style="display:none;">
+        <div>
+            <span id="user-info"></span>
+            <button onclick="logout()" style="float:right;width:auto;">退出</button>
+        </div>
+        <hr>
+        <div>
+            <button onclick="deal()">发牌</button>
+            <input type="number" id="bet-amount" value="100" min="1" style="width:80px;">
+            <button onclick="bet()">下注</button>
+            <input type="number" id="settle-amount" value="200" min="0" style="width:80px;">
+            <label><input type="checkbox" id="win">中奖</label>
+            <button onclick="settle()">结算</button>
+        </div>
+        <div>
+            <input type="number" id="deposit" value="500" min="1" style="width:80px;">
+            <button onclick="setBanker()">上庄</button>
+            <button onclick="quitBanker()">下庄</button>
+        </div>
+        <div id="msg" class="msg"></div>
+        <div id="result"></div>
+    </div>
+</div>
+<script>
+function showRegister() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = '';
+}
+function showLogin() {
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('login-form').style.display = '';
+}
+function register() {
+    let username = document.getElementById('reg-username').value.trim();
+    let password = document.getElementById('reg-password').value;
+    fetch('api/user.php', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: `action=register&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+    }).then(r=>r.json()).then(res=>{
+        document.getElementById('msg').innerText = res.msg;
+        if(res.code===0) showLogin();
+    });
+}
+function login() {
+    let username = document.getElementById('login-username').value.trim();
+    let password = document.getElementById('login-password').value;
+    fetch('api/user.php', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: `action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+    }).then(r=>r.json()).then(res=>{
+        document.getElementById('msg').innerText = res.msg;
+        if(res.code===0) {
+            document.getElementById('user-area').style.display = 'none';
+            document.getElementById('game-area').style.display = '';
+            updateUserInfo(res.user);
+        }
+    });
+}
+function logout() {
+    fetch('api/user.php', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: 'action=logout'
+    }).then(r=>r.json()).then(res=>{
+        document.getElementById('user-area').style.display = '';
+        document.getElementById('game-area').style.display = 'none';
+        document.getElementById('msg').innerText = res.msg;
+    });
+}
+function updateUserInfo(user) {
+    document.getElementById('user-info').innerText = `用户：${user.username} | 金币：${user.coin}`;
+}
+function deal() {
+    fetch('../index.php?action=deal').then(r=>r.text()).then(html=>{
+        let m = html.match(/<pre>([\s\S]+?)<\/pre>/);
+        document.getElementById('result').innerHTML = m ? `<pre>${m[1]}</pre>` : '';
+    });
+}
+function bet() {
+    let amount = document.getElementById('bet-amount').value;
+    fetch(`../index.php?action=bet&amount=${amount}`).then(r=>r.text()).then(html=>{
+        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
+        document.getElementById('msg').innerText = m ? m[1] : '';
+    });
+}
+function settle() {
+    let amount = document.getElementById('settle-amount').value;
+    let win = document.getElementById('win').checked ? 1 : 0;
+    fetch(`../index.php?action=settle&amount=${amount}&win=${win}`).then(r=>r.text()).then(html=>{
+        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
+        document.getElementById('msg').innerText = m ? m[1] : '';
+    });
+}
+function setBanker() {
+    let deposit = document.getElementById('deposit').value;
+    fetch(`../index.php?action=set_banker&deposit=${deposit}`).then(r=>r.text()).then(html=>{
+        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
+        document.getElementById('msg').innerText = m ? m[1] : '';
+    });
+}
+function quitBanker() {
+    fetch(`../index.php?action=quit_banker`).then(r=>r.text()).then(html=>{
+        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
+        document.getElementById('msg').innerText = m ? m[1] : '';
+    });
+}
+</script>
+</body>
+</html>

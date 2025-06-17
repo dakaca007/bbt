@@ -26,7 +26,8 @@ COPY localhost/ /var/www/html/
 # 复制启动脚本
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 # 设置Apache配置以允许.htaccess
 RUN echo '<Directory /var/www/html>' > /etc/apache2/sites-available/000-default.conf \
     && echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf \

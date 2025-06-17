@@ -1,25 +1,52 @@
 <?php
-require_once __DIR__ . '/../src/game.php';
+require_once __DIR__ . '/../Database.php';
+require_once __DIR__ . '/src/game.php';
+session_start();
+
+$db = new Database();
+$conn = $db->connect();
+
+// 检查用户是否已登录
+$user = $_SESSION['user'] ?? null;
+if (!$user) {
+    echo json_encode(['code'=>401, 'msg'=>'请先登录']);
+    exit;
+}
 
 $action = $_GET['action'] ?? '';
 $result = null;
 $msg = '';
 
-if ($action === 'deal') {
-    $result = jinhua_info();
-} elseif ($action === 'bet') {
-    $amount = intval($_GET['amount'] ?? 0);
-    $msg = bet($amount);
-} elseif ($action === 'settle') {
-    $win = isset($_GET['win']);
-    $amount = intval($_GET['amount'] ?? 0);
-    $msg = settle($win, $amount);
-} elseif ($action === 'set_banker') {
-    $deposit = intval($_GET['deposit'] ?? 0);
-    $msg = set_banker($deposit);
-} elseif ($action === 'quit_banker') {
-    $msg = quit_banker();
+switch ($action) {
+    case 'deal':
+        $result = jinhua_info();
+        break;
+    case 'bet':
+        $amount = intval($_GET['amount'] ?? 0);
+        $msg = bet($conn, $user['id'], $amount);
+        break;
+    case 'settle':
+        $win = isset($_GET['win']);
+        $amount = intval($_GET['amount'] ?? 0);
+        $msg = settle($conn, $user['id'], $win, $amount);
+        break;
+    case 'set_banker':
+        $deposit = intval($_GET['deposit'] ?? 0);
+        $msg = set_banker($conn, $user['id'], $deposit);
+        break;
+    case 'quit_banker':
+        $msg = quit_banker($conn, $user['id']);
+        break;
+    default:
+        $msg = '';
 }
+
+echo json_encode([
+    'code' => 0,
+    'msg' => $msg,
+    'result' => $result,
+    'user' => $_SESSION['user']
+]);
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,6 +56,7 @@ if ($action === 'deal') {
 </head>
 <body>
     <h2>纯PHP游戏接口测试</h2>
+    <p>当前用户：<?php echo htmlspecialchars($user['username']); ?> | 金币：<?php echo $_SESSION['coin']; ?></p>
     <form method="get">
         <button name="action" value="deal">炸金花发牌</button>
     </form>
