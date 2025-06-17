@@ -1,6 +1,7 @@
 # 使用官方PHP+Apache镜像
 FROM php:7.4-apache
-
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
+    && sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 # 安装必要的扩展和工具
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
