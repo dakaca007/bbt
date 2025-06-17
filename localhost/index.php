@@ -41,6 +41,7 @@ switch ($action) {
         $msg = '';
 }
 
+header('Content-Type: application/json');
 echo json_encode([
     'code' => 0,
     'msg' => $msg,

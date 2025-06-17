@@ -125,38 +125,74 @@ function updateUserInfo(user) {
     document.getElementById('user-info').innerText = `用户：${user.username} | 金币：${user.coin}`;
 }
 function deal() {
-    fetch('../index.php?action=deal').then(r=>r.text()).then(html=>{
-        let m = html.match(/<pre>([\s\S]+?)<\/pre>/);
-        document.getElementById('result').innerHTML = m ? `<pre>${m[1]}</pre>` : '';
-    });
+    fetch('../index.php?action=deal')
+        .then(r=>r.json())
+        .then(res=>{
+            if(res.code === 401) {
+                document.getElementById('msg').innerText = res.msg;
+                logout();
+                return;
+            }
+            document.getElementById('msg').innerText = res.msg || '';
+            document.getElementById('result').innerHTML = res.result ? `<pre>${JSON.stringify(res.result, null, 2)}</pre>` : '';
+            if(res.user) updateUserInfo(res.user);
+        });
 }
 function bet() {
     let amount = document.getElementById('bet-amount').value;
-    fetch(`../index.php?action=bet&amount=${amount}`).then(r=>r.text()).then(html=>{
-        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
-        document.getElementById('msg').innerText = m ? m[1] : '';
-    });
+    fetch(`../index.php?action=bet&amount=${amount}`)
+        .then(r=>r.json())
+        .then(res=>{
+            if(res.code === 401) {
+                document.getElementById('msg').innerText = res.msg;
+                logout();
+                return;
+            }
+            document.getElementById('msg').innerText = res.msg || '';
+            if(res.user) updateUserInfo(res.user);
+        });
 }
 function settle() {
     let amount = document.getElementById('settle-amount').value;
     let win = document.getElementById('win').checked ? 1 : 0;
-    fetch(`../index.php?action=settle&amount=${amount}&win=${win}`).then(r=>r.text()).then(html=>{
-        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
-        document.getElementById('msg').innerText = m ? m[1] : '';
-    });
+    fetch(`../index.php?action=settle&amount=${amount}&win=${win}`)
+        .then(r=>r.json())
+        .then(res=>{
+            if(res.code === 401) {
+                document.getElementById('msg').innerText = res.msg;
+                logout();
+                return;
+            }
+            document.getElementById('msg').innerText = res.msg || '';
+            if(res.user) updateUserInfo(res.user);
+        });
 }
 function setBanker() {
     let deposit = document.getElementById('deposit').value;
-    fetch(`../index.php?action=set_banker&deposit=${deposit}`).then(r=>r.text()).then(html=>{
-        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
-        document.getElementById('msg').innerText = m ? m[1] : '';
-    });
+    fetch(`../index.php?action=set_banker&deposit=${deposit}`)
+        .then(r=>r.json())
+        .then(res=>{
+            if(res.code === 401) {
+                document.getElementById('msg').innerText = res.msg;
+                logout();
+                return;
+            }
+            document.getElementById('msg').innerText = res.msg || '';
+            if(res.user) updateUserInfo(res.user);
+        });
 }
 function quitBanker() {
-    fetch(`../index.php?action=quit_banker`).then(r=>r.text()).then(html=>{
-        let m = html.match(/<p style="color:blue;">(.+?)<\/p>/);
-        document.getElementById('msg').innerText = m ? m[1] : '';
-    });
+    fetch(`../index.php?action=quit_banker`)
+        .then(r=>r.json())
+        .then(res=>{
+            if(res.code === 401) {
+                document.getElementById('msg').innerText = res.msg;
+                logout();
+                return;
+            }
+            document.getElementById('msg').innerText = res.msg || '';
+            if(res.user) updateUserInfo(res.user);
+        });
 }
 </script>
 </body>
