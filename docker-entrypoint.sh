@@ -1,10 +1,18 @@
 #!/bin/bash
 set -e
 
-# 如果存在composer.json但未安装依赖，则自动安装
+# 检查并安装 Composer 依赖
 if [ -f "composer.json" ] && [ ! -d "vendor" ]; then
-    composer install --optimize-autoloader
+    echo "Installing Composer dependencies..."
+    composer install --optimize-autoloader --no-interaction --no-progress
 fi
 
-# 启动Apache
-apache2-foreground
+# 设置正确的文件权限
+echo "Setting file permissions..."
+chown -R www-data:www-data /var/www/html
+find /var/www/html -type d -exec chmod 755 {} \;
+find /var/www/html -type f -exec chmod 644 {} \;
+
+# 启动 Apache
+echo "Starting Apache server..."
+exec apache2-foreground
