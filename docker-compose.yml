@@ -1,22 +1,35 @@
-version: '3.8'
+version: '3'
 
 services:
   web:
     build: .
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
-      - ./localhost:/var/www/html
+      - ./myphp:/var/www/html/php
+      - ./nginx.conf:/etc/nginx/sites-available/default
+    depends_on:
+      - db
+    restart: unless-stopped
     environment:
-      - APACHE_RUN_USER=www-data
-      - APACHE_RUN_GROUP=www-data
-      - APP_ENV=dev
-      # 添加下面两行防止 Composer 内存错误 ↓
-      - COMPOSER_MEMORY_LIMIT=-1
-      - COMPOSER_ALLOW_SUPERUSER=1
-    # 添加健康检查 ↓
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - DB_HOST=db
+      - DB_NAME=myapp
+      - DB_USER=myuser
+      - DB_PASS=mypassword
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
