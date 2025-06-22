@@ -21,6 +21,12 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     php8.1-sqlite3 \
     php8.1-pgsql \
     # 开发工具
+    # Python环境
+    python3-pip python3-venv \
+    # Go语言环境
+    golang-go \
+    # Node.js环境（包含npm）
+    nodejs \
     composer \
     git \
     unzip \
@@ -30,11 +36,28 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     redis-server \
     supervisor \
     && rm -rf /var/lib/apt/lists/*
-
+# 配置全局目录结构
+RUN mkdir -p \
+    /var/log/nginx \
+    /var/lib/nginx \
+    /var/www/html/php \
+    /var/www/html/python \
+    /var/www/html/go \
+    /var/www/html/node \
+    /run/php \
+    /run/gunicorn \
+    /run/supervisor
 # 配置Nginx目录权限
 RUN mkdir -p /var/log/nginx /var/lib/nginx /var/www/html/php \
     && chown -R www-data:www-data /var/log/nginx /var/lib/nginx /var/www/html \
     && chmod 755 /var/log/nginx /var/lib/nginx
+# 配置目录权限
+RUN chown -R www-data:www-data \
+    /var/log/nginx \
+    /var/lib/nginx \
+    /var/www/html \
+    /run/php \
+    /run/gunicorn
 # 设置Composer阿里云镜像（加速下载）
 RUN composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 # 安装常用NPM包（按需添加）
@@ -42,19 +65,29 @@ RUN npm install -g yarn pnpm
 # 配置PHP框架环境
 RUN sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/8.1/fpm/php.ini && \
     echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php/8.1/fpm/pool.d/www.conf
-WORKDIR /var/www/html/php
 
-# PHP运行环境配置
-RUN mkdir -p /run/php && chown www-data:www-data /run/php
-RUN echo "<?php phpinfo(); ?>" > /var/www/html/php/info.php \
-    && echo "<?php echo 'Hello from PHP test!'; ?>" > /var/www/html/php/test.php \
-    && chown -R www-data:www-data /var/www/html/php \
-    && chmod 755 /var/www/html/php/*.php
+WORKDIR /var/www/html
+
+# 配置PHP环境
+RUN echo "<?php phpinfo(); ?>" > php/info.php && \
+    composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 COPY ./localhost /var/www/html/php
-
+# 配置Python环境
+RUN pip3 install gunicorn flask --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple
+COPY ./app.py python/
+RUN chown -R www-data:www-data python
+# 配置Go环境
+COPY ./go-app.go go/
+RUN go mod init mygoapp && go build -o /usr/bin/goapp go/*.go && \
+    chown -R www-data:www-data go
+# 配置Node.js环境
+COPY ./package.json ./server.js node/
+RUN npm install --prefix node --registry=https://registry.npmmirror.com && \
+    chown -R www-data:www-data node
 # 配置Nginx
 COPY nginx.conf /etc/nginx/sites-available/default
-
+# 配置Supervisor（管理多进程）
+COPY supervisord.conf /etc/supervisor/supervisord.conf
 # 配置启动脚本
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
