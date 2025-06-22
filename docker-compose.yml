@@ -6,12 +6,17 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./localhost:/var/www/html  # 开发时挂载代码
+      - ./localhost:/var/www/html
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data
-      - APP_ENV=dev  # 开发环境，生产设为 production
-    # 生产环境建议注释 volumes 并启用以下配置：
-    # restart: always
-    # environment:
-    #   - APP_ENV=production
+      - APP_ENV=dev
+      # 添加下面两行防止 Composer 内存错误 ↓
+      - COMPOSER_MEMORY_LIMIT=-1
+      - COMPOSER_ALLOW_SUPERUSER=1
+    # 添加健康检查 ↓
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
