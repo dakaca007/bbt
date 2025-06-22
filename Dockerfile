@@ -10,13 +10,38 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     nginx \
     php8.1-fpm \
     php8.1-mysql \
+    php8.1-curl \
+    php8.1-dom \
+    php8.1-mbstring \
+    php8.1-zip \
+    php8.1-gd \
+    php8.1-bcmath \
+    php8.1-intl \
+    php8.1-xml \
+    php8.1-sqlite3 \
+    php8.1-pgsql \
+    # 开发工具
+    composer \
+    git \
+    unzip \
+    nodejs \
+    npm \
+    # 缓存和队列依赖
+    redis-server \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # 配置Nginx目录权限
 RUN mkdir -p /var/log/nginx /var/lib/nginx /var/www/html/php \
     && chown -R www-data:www-data /var/log/nginx /var/lib/nginx /var/www/html \
     && chmod 755 /var/log/nginx /var/lib/nginx
-
+# 设置Composer阿里云镜像（加速下载）
+RUN composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+# 安装常用NPM包（按需添加）
+RUN npm install -g yarn pnpm
+# 配置PHP框架环境
+RUN sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/8.1/fpm/php.ini && \
+    echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php/8.1/fpm/pool.d/www.conf
 WORKDIR /var/www/html/php
 
 # PHP运行环境配置
