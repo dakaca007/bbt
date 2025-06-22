@@ -21,12 +21,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# 设置工作目录
+WORKDIR /var/www/html
 # 安装Composer（全局可用）
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
-
-# 设置工作目录
-WORKDIR /var/www/html
+RUN composer init --no-interaction --type=project
 
 # 先复制composer文件安装依赖（利用Docker层缓存）
 COPY localhost/composer.* ./
