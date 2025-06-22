@@ -76,6 +76,13 @@ COPY localhost /var/www/html/php
 RUN pip3 install gunicorn flask --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple
 COPY app.py python/
 RUN chown -R www-data:www-data python
+# 在 COPY 之后添加以下步骤
+RUN cd go && \
+    go mod init mygoapp && \
+    go get github.com/gorilla/websocket && \
+    go mod tidy && \
+    go build -o /usr/bin/goapp . && \
+    chown -R www-data:www-data /usr/bin/goapp
 # 配置Go环境
 COPY go-app.go go/
 RUN go mod init mygoapp && go build -o /usr/bin/goapp go/*.go && \
