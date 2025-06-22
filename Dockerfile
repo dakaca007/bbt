@@ -71,17 +71,17 @@ WORKDIR /var/www/html
 # 配置PHP环境
 RUN echo "<?php phpinfo(); ?>" > php/info.php && \
     composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
-COPY ./localhost /var/www/html/php
+COPY localhost /var/www/html/php
 # 配置Python环境
 RUN pip3 install gunicorn flask --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ./app.py python/
+COPY app.py python/
 RUN chown -R www-data:www-data python
 # 配置Go环境
-COPY ./go-app.go go/
+COPY go-app.go go/
 RUN go mod init mygoapp && go build -o /usr/bin/goapp go/*.go && \
     chown -R www-data:www-data go
 # 配置Node.js环境
-COPY ./package.json ./server.js node/
+COPY package.json server.js node/
 RUN npm install --prefix node --registry=https://registry.npmmirror.com && \
     chown -R www-data:www-data node
 # 配置Nginx
