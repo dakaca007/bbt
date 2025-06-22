@@ -1,34 +1,39 @@
 #!/bin/bash
+set -e  # 任何命令失败时退出脚本
 
-# 启动Apache后台服务
-apache2-foreground &
-
-# 如果存在vendor目录，则说明已经安装过依赖
-if [ ! -d "vendor" ]; then
-    composer install
+# 根据环境变量区分开发/生产行为
+if [ "$APP_ENV" = "dev" ]; then
+    echo "运行在开发模式"
+    # 开发环境：确保依赖已安装
+    if [ ! -d "vendor" ]; then
+        composer install --optimize-autoloader
+    fi
+    # 开发环境：开放写权限（按需调整）
+    chmod -R 775 /var/www/html/e/ 2>/dev/null || true
+else
+    echo "运行在生产模式"
+    # 生产环境：确保缓存和日志目录可写
+    chmod -R 775 /var/www/html/var/cache/ 2>/dev/null || true
+    chmod -R 775 /var/www/html/var/log/ 2>/dev/null || true
 fi
 
-# 设置目录权限
-chmod -R 777 /var/www/html/e/ 2>/dev/null || true
+# 启动Apache（前台运行）
+apache2-foreground &
+APACHE_PID=$!
 
-# 监控文件变化的循环
-while true; do
-    # 使用inotifywait监控文件变化
-    inotifywait -r -e modify,create,delete /var/www/html/
-    
-    # 当检测到变化时，执行以下操作
-    echo "检测到文件变化，自动更新..."
-    
-    # 如果有新的composer依赖，可以自动安装
-    if [ -f "composer.json" ] && [ "composer.json" -nt "vendor" ]; then
-        composer install
-    fi
-    
-    # 清除任何可能存在的缓存
-    rm -rf /var/www/html/var/cache/* 2>/dev/null || true
-    
-    # 确保Apache已运行
-    if ! pgrep "apache2" > /dev/null; then
-        apache2-foreground &
-    fi
-done
+# 开发环境：监控文件变化自动更新
+if [ "$APP_ENV" = "dev" ]; then
+    while kill -0 $APACHE_PID 2>/dev/null; do
+        echo "监控文件变化中..."
+        inotifywait -r -e modify,create,delete /var/www/html/
+        # 检测到变化时重新安装依赖（如composer.json变更）
+        if [ -f "composer.json" ] && [ "composer.json" -nt "vendor" ]; then
+            composer install --optimize-autoloader
+        fi
+        # 清理缓存
+        rm -rf /var/www/html/var/cache/* 2>/dev/null || true
+    done
+else
+    # 生产环境：仅等待Apache退出
+    wait $APACHE_PID
+fi
