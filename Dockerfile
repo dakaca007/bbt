@@ -25,7 +25,7 @@ RUN echo "<?php phpinfo(); ?>" > /var/www/html/php/info.php \
     && echo "<?php echo 'Hello from PHP test!'; ?>" > /var/www/html/php/test.php \
     && chown -R www-data:www-data /var/www/html/php \
     && chmod 755 /var/www/html/php/*.php
-COPY ./myphp /var/www/html/php
+COPY ./localhost /var/www/html/php
 
 # 配置Nginx
 COPY nginx.conf /etc/nginx/sites-available/default
