@@ -77,16 +77,15 @@ RUN pip3 install gunicorn flask --no-cache-dir -i https://pypi.tuna.tsinghua.edu
 COPY app.py python/
 RUN chown -R www-data:www-data python
 # 在 COPY 之后添加以下步骤
+# 配置Go环境
+COPY go-app.go go/
 RUN cd go && \
     go mod init mygoapp && \
     go get github.com/gorilla/websocket && \
     go mod tidy && \
     go build -o /usr/bin/goapp . && \
     chown -R www-data:www-data /usr/bin/goapp
-# 配置Go环境
-COPY go-app.go go/
-RUN go mod init mygoapp && go build -o /usr/bin/goapp go/*.go && \
-    chown -R www-data:www-data go
+
 # 配置Node.js环境
 COPY package.json server.js node/
 RUN npm install --prefix node --registry=https://registry.npmmirror.com && \
