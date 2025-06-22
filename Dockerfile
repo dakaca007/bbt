@@ -24,8 +24,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # 设置工作目录
 WORKDIR /var/www/html
 
-# 直接复制所有代码（跳过composer安装步骤）
-COPY localhost/ ./
+ 
 
 # 配置Apache
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
