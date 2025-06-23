@@ -47,7 +47,7 @@ RUN chown -R www-data:www-data \
     /run/php \
     /run/gunicorn
 # 设置Composer阿里云镜像（加速下载）
-RUN composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+#RUN composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 
 # 配置PHP框架环境
 RUN sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/8.1/fpm/php.ini && \
