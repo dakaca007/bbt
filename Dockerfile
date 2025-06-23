@@ -64,7 +64,6 @@ COPY localhost /var/www/html/php
 COPY go-app.go go/
 RUN cd go && \
     go mod init mygoapp && \
-    go get github.com/gorilla/websocket && \
     go mod tidy && \
     go build -o /usr/bin/goapp . && \
     chown -R www-data:www-data /usr/bin/goapp
