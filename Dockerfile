@@ -56,8 +56,7 @@ RUN sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/8.1/fpm/php.ini 
 WORKDIR /var/www/html
 
 # 配置PHP环境
-RUN echo "<?php phpinfo(); ?>" > php/info.php && \
-    composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+RUN echo "<?php phpinfo(); ?>" > php/info.php
 COPY localhost /var/www/html/php
 
 
